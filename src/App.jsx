@@ -192,7 +192,12 @@ function App() {
     localStorage.setItem('tone-presets', JSON.stringify(newPresets));
   };
 
-  const adjustFreq = (amount) => setFrequency(f => Math.max(1, Math.min(20000, parseFloat((f + amount).toFixed(2)))));
+  // Update: Erlaubt Dezimalstellen und rundet korrekt
+  const adjustFreq = (amount) => setFrequency(f => {
+    const newFreq = parseFloat((f + amount).toFixed(2));
+    return Math.max(1, Math.min(20000, newFreq));
+  });
+
   const multFreq = (factor) => setFrequency(f => Math.max(1, Math.min(20000, parseFloat((f * factor).toFixed(2)))));
 
   return (
@@ -212,6 +217,7 @@ function App() {
             <canvas ref={canvasRef} width="600" height="100" className="visualizer"></canvas>
         </div>
 
+        {/* Update: Zentrierte Anzeige mit Hz darunter */}
         <div className="display-section">
           <div className="frequency-wrapper">
             <input 
@@ -219,8 +225,9 @@ function App() {
               inputMode="decimal"
               value={frequency} 
               onChange={(e) => setFrequency(Number(e.target.value))}
+              className="freq-input"
             />
-            <span className="unit">Hz</span>
+            <span className="unit">Hertz</span>
           </div>
         </div>
 
@@ -230,7 +237,7 @@ function App() {
 
         <div className="slider-container">
           <input 
-            type="range" min="20" max="10000" step="1" 
+            type="range" min="20" max="10000" step="0.01" // Update: Feinere Schritte
             value={frequency} 
             onChange={(e) => setFrequency(Number(e.target.value))}
             className="slider freq-slider"
@@ -240,9 +247,16 @@ function App() {
 
         <div className="fine-tuning">
           <button onClick={() => multFreq(0.5)}>× ½</button>
-          <button onClick={() => adjustFreq(-1)}>- 1</button>
-          <button onClick={() => adjustFreq(1)}>+ 1</button>
+          <button onClick={() => adjustFreq(-0.01)}>- 0.01</button> {/* Update: Feinjustierung */}
+          <button onClick={() => adjustFreq(0.01)}>+ 0.01</button> {/* Update: Feinjustierung */}
           <button onClick={() => multFreq(2)}>× 2</button>
+        </div>
+
+        {/* NEU: Shortcuts für Spezialfrequenzen */}
+        <div className="fine-tuning" style={{ marginTop: '12px' }}>
+            <button onClick={() => setFrequency(234.45)}>234.45 Hz</button>
+            <button onClick={() => setFrequency(40)} style={{ gridColumn: 'span 2' }}>40 Hz (Forschung)</button>
+            <button onClick={() => adjustFreq(10)}>+ 10</button>
         </div>
 
         <hr className="divider" />
