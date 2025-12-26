@@ -1,22 +1,14 @@
 :root {
-  /* Hintergrund etwas kühler/dunkler, damit die weiße Karte besser rauskommt */
   --bg-color: #eef2f6;
   --card-bg: #ffffff;
-  
-  /* Text: Viel dunkleres Grau für maximalen Kontrast */
-  --text-primary: #111827; /* Fast Schwarz */
-  --text-secondary: #374151; /* Dunkelgrau, gut lesbar */
+  --text-primary: #111827; 
+  --text-secondary: #374151; 
   --text-muted: #6b7280;
-  
-  /* Accent: Dunkleres, gesättigtes Teal (Medical Green) */
   --accent-color: #00796b; 
   --accent-hover: #004d40;
   --accent-light: #e0f2f1;
-  
-  --danger-color: #d32f2f; /* Dunkleres Rot */
-  --border-color: #b0bec5; /* Deutlich sichtbare Rahmen */
-  
-  /* Kräftigerer Schatten für Tiefe */
+  --danger-color: #d32f2f;
+  --border-color: #b0bec5; 
   --shadow-strong: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
@@ -82,7 +74,7 @@ header { margin-bottom: 2rem; }
   font-weight: 500;
 }
 
-/* Card Style - High Contrast & Depth */
+/* Card Style */
 .card {
   background-color: var(--card-bg);
   padding: 2.5rem;
@@ -106,11 +98,11 @@ header { margin-bottom: 2rem; }
   display: block;
 }
 
-/* Frequency Big Display - OPTIMIZED */
+/* Frequency Big Display */
 .display-section {
   margin-bottom: 2rem;
   background: #f8fafc;
-  padding: 2rem 1rem; /* Mehr Padding oben/unten */
+  padding: 2rem 1rem;
   border-radius: 12px;
   border: 1px solid var(--border-color);
   box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);
@@ -118,22 +110,21 @@ header { margin-bottom: 2rem; }
 
 .frequency-wrapper {
   display: flex;
-  flex-direction: column; /* Untereinander statt nebeneinander */
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 5px; /* Kleiner Abstand zwischen Zahl und Hz */
+  gap: 5px;
   position: relative;
 }
 
 .frequency-wrapper input {
   background: transparent;
   border: none;
-  /* Unterstreichung nur angedeutet oder ganz weg für cleaneren Look */
   border-bottom: 2px solid transparent; 
   color: var(--text-primary);
-  font-size: 6rem; /* Noch etwas größer */
+  font-size: 6rem;
   font-weight: 800;
-  text-align: center; /* WICHTIG: Zentriert */
+  text-align: center;
   width: 100%;
   max-width: 500px;
   font-family: 'Segoe UI', 'Roboto', sans-serif;
@@ -141,7 +132,6 @@ header { margin-bottom: 2rem; }
   padding: 0;
   margin: 0;
   transition: all 0.2s;
-  /* Entfernt die hässlichen Pfeile im Input bei manchen Browsern */
   -moz-appearance: textfield; 
 }
 
@@ -153,15 +143,15 @@ header { margin-bottom: 2rem; }
 
 .frequency-wrapper input:focus {
   outline: none;
-  transform: scale(1.02); /* Leichter Zoom beim Fokus */
+  transform: scale(1.02);
 }
 
 .unit {
   font-size: 1.5rem;
-  color: var(--accent-color); /* Farbe angepasst passend zum Design */
+  color: var(--accent-color);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 4px; /* Breiter gesperrt für technischen Look */
+  letter-spacing: 4px;
   margin-top: 0.5rem;
   opacity: 0.8;
 }
@@ -178,7 +168,7 @@ header { margin-bottom: 2rem; }
   width: 100%;
   max-width: 450px;
   margin-bottom: 2.5rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15); /* Mehr Schatten */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -208,12 +198,12 @@ header { margin-bottom: 2rem; }
   background-color: #ffebee;
 }
 
-/* Slider Customization - High Contrast */
+/* Slider */
 .slider-container { margin: 2rem 0; }
 
 .slider {
   width: 100%;
-  height: 12px; /* Dicker für bessere Greifbarkeit */
+  height: 12px;
   border-radius: 6px;
   background: #cfd8dc;
   outline: none;
@@ -223,7 +213,7 @@ header { margin-bottom: 2rem; }
 
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 32px; /* Größerer Knopf */
+  width: 32px;
   height: 32px;
   border-radius: 50%;
   background: var(--accent-color);
@@ -242,13 +232,13 @@ header { margin-bottom: 2rem; }
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  margin-bottom: 12px; /* Reduziert für den neuen Shortcut Block */
+  margin-bottom: 12px;
 }
 
 .fine-tuning button {
   background-color: white;
   color: var(--text-secondary);
-  border: 2px solid var(--border-color); /* Dickerer Rahmen */
+  border: 2px solid var(--border-color);
   padding: 14px;
   border-radius: 8px;
   cursor: pointer;
@@ -279,7 +269,7 @@ header { margin-bottom: 2rem; }
 .control-group label {
   display: block;
   margin-bottom: 0.8rem;
-  color: var(--text-primary); /* Dunkler */
+  color: var(--text-primary);
   font-weight: 700;
   text-transform: uppercase;
   font-size: 0.9rem;
@@ -309,6 +299,83 @@ header { margin-bottom: 2rem; }
   color: white;
   border-color: var(--accent-color);
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* TIMER SECTION STYLES */
+.timer-section {
+  margin-top: 2rem;
+  text-align: left;
+  background: #e0f2f1; /* Sehr helles Teal */
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 2px solid var(--accent-light);
+}
+
+.timer-section h4 {
+  margin-top: 0;
+  color: var(--accent-color);
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+}
+
+.timer-controls {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.timer-controls button {
+  background: white;
+  border: 1px solid var(--accent-color);
+  color: var(--accent-color);
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.timer-controls button:hover {
+  background: var(--accent-color);
+  color: white;
+}
+
+.timer-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+}
+
+.time-remaining {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.time-remaining strong {
+  color: var(--accent-color);
+  font-size: 1.3rem;
+  margin-left: 10px;
+  font-family: monospace;
+}
+
+.cancel-timer-btn {
+  background: #ffebee;
+  color: var(--danger-color);
+  border: 1px solid var(--danger-color);
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.cancel-timer-btn:hover {
+  background: var(--danger-color);
+  color: white;
 }
 
 /* Presets */
@@ -389,7 +456,7 @@ header { margin-bottom: 2rem; }
 .info-text {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #bf360c; /* Gut sichtbares Warn-Orange */
+  color: #bf360c;
   margin-top: 0.8rem;
   background: #fbe9e7;
   padding: 8px;
@@ -449,4 +516,5 @@ header { margin-bottom: 2rem; }
   .card { padding: 1.5rem; }
   .fine-tuning { grid-template-columns: repeat(2, 1fr); }
   .play-btn { font-size: 1.2rem; padding: 1rem; }
+  .timer-controls { grid-template-columns: repeat(2, 1fr); }
 }

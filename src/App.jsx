@@ -19,6 +19,11 @@ const translations = {
     desc: "Tipp: Nutzen Sie die Leertaste für Start/Stopp und die Pfeiltasten zur Feinjustierung.",
     onAir: "AKTIV",
     off: "BEREIT",
+    // Timer
+    timerTitle: "Schlummertimer (Auto-Stopp)",
+    timerRunning: "Timer läuft:",
+    timerMin: "Min.",
+    stopTimer: "Timer abbrechen",
     // FAQ Section
     faqTitle: "Wofür kann ich diesen Tongenerator nutzen?",
     faq1_title: "Instrumente stimmen & Audio-Tests",
@@ -45,6 +50,11 @@ const translations = {
     desc: "Consejo: Use la barra espaciadora para iniciar/parar y las flechas para ajustar.",
     onAir: "ACTIVO",
     off: "LISTO",
+    // Timer
+    timerTitle: "Temporizador (Auto-Stop)",
+    timerRunning: "Tiempo restante:",
+    timerMin: "Min.",
+    stopTimer: "Cancelar temporizador",
     // FAQ Section
     faqTitle: "¿Para qué puedo usar este generador?",
     faq1_title: "Afinación y Pruebas de Audio",
@@ -65,6 +75,10 @@ function App() {
   const [volume, setVolume] = useState(0.5);
   const [waveType, setWaveType] = useState('sine');
   
+  // Timer States
+  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+
   const [presets, setPresets] = useState(() => {
     const saved = localStorage.getItem('tone-presets');
     return saved ? JSON.parse(saved) : [
@@ -92,6 +106,40 @@ function App() {
     }
   }, []);
 
+  // Timer Logic
+  useEffect(() => {
+    let interval = null;
+    if (isTimerRunning && timerSeconds > 0) {
+      interval = setInterval(() => {
+        setTimerSeconds((prev) => prev - 1);
+      }, 1000);
+    } else if (timerSeconds === 0 && isTimerRunning) {
+      // Timer abgelaufen
+      if (isPlaying) togglePlay(); // Ton stoppen
+      setIsTimerRunning(false);
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning, timerSeconds, isPlaying]);
+
+  const startTimer = (minutes) => {
+    setTimerSeconds(minutes * 60);
+    setIsTimerRunning(true);
+    // Optional: Wenn Timer startet, auch Ton starten? 
+    // Aktuell lassen wir den Nutzer den Ton separat starten, damit er erst einstellen kann.
+  };
+
+  const cancelTimer = () => {
+    setIsTimerRunning(false);
+    setTimerSeconds(0);
+  };
+
+  const formatTime = (secs) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
   const drawVisualizer = () => {
     if (!canvasRef.current || !analyserRef.current) return;
     const canvas = canvasRef.current;
@@ -103,13 +151,11 @@ function App() {
       animationRef.current = requestAnimationFrame(draw);
       analyserRef.current.getByteTimeDomainData(dataArray);
 
-      // Hintergrund: Leichtes Grau statt hartes Weiß für besseren Kontrast zur Welle
       canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
       canvasCtx.fillStyle = '#f0f2f5'; 
       canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
-      canvasCtx.lineWidth = 4; // Dickere Linie
-      // Sehr dunkles Teal für maximalen Kontrast
+      canvasCtx.lineWidth = 4;
       canvasCtx.strokeStyle = '#004d40'; 
       canvasCtx.beginPath();
 
@@ -140,7 +186,7 @@ function App() {
         ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
         ctx.beginPath();
         ctx.lineWidth = 2;
-        ctx.strokeStyle = '#b0bec5'; // Ruhezustand Linie
+        ctx.strokeStyle = '#b0bec5';
         ctx.moveTo(0, canvasRef.current.height/2);
         ctx.lineTo(canvasRef.current.width, canvasRef.current.height/2);
         ctx.stroke();
@@ -166,9 +212,11 @@ function App() {
     if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume();
 
     if (isPlaying) {
-      oscillatorRef.current.stop();
-      oscillatorRef.current.disconnect();
-      oscillatorRef.current = null;
+      if (oscillatorRef.current) {
+        oscillatorRef.current.stop();
+        oscillatorRef.current.disconnect();
+        oscillatorRef.current = null;
+      }
     } else {
       oscillatorRef.current = audioCtxRef.current.createOscillator();
       oscillatorRef.current.type = waveType;
@@ -192,7 +240,6 @@ function App() {
     localStorage.setItem('tone-presets', JSON.stringify(newPresets));
   };
 
-  // Update: Erlaubt Dezimalstellen und rundet korrekt
   const adjustFreq = (amount) => setFrequency(f => {
     const newFreq = parseFloat((f + amount).toFixed(2));
     return Math.max(1, Math.min(20000, newFreq));
@@ -217,7 +264,6 @@ function App() {
             <canvas ref={canvasRef} width="600" height="100" className="visualizer"></canvas>
         </div>
 
-        {/* Update: Zentrierte Anzeige mit Hz darunter */}
         <div className="display-section">
           <div className="frequency-wrapper">
             <input 
@@ -237,7 +283,7 @@ function App() {
 
         <div className="slider-container">
           <input 
-            type="range" min="20" max="10000" step="0.01" // Update: Feinere Schritte
+            type="range" min="20" max="10000" step="0.01" 
             value={frequency} 
             onChange={(e) => setFrequency(Number(e.target.value))}
             className="slider freq-slider"
@@ -247,12 +293,11 @@ function App() {
 
         <div className="fine-tuning">
           <button onClick={() => multFreq(0.5)}>× ½</button>
-          <button onClick={() => adjustFreq(-0.01)}>- 0.01</button> {/* Update: Feinjustierung */}
-          <button onClick={() => adjustFreq(0.01)}>+ 0.01</button> {/* Update: Feinjustierung */}
+          <button onClick={() => adjustFreq(-0.01)}>- 0.01</button>
+          <button onClick={() => adjustFreq(0.01)}>+ 0.01</button>
           <button onClick={() => multFreq(2)}>× 2</button>
         </div>
 
-        {/* NEU: Shortcuts für Spezialfrequenzen */}
         <div className="fine-tuning" style={{ marginTop: '12px' }}>
             <button onClick={() => setFrequency(234.45)}>234.45 Hz</button>
             <button onClick={() => setFrequency(40)} style={{ gridColumn: 'span 2' }}>40 Hz (Forschung)</button>
@@ -288,6 +333,24 @@ function App() {
             <p className="info-text">{t.warning}</p>
           </div>
         </div>
+        
+        {/* TIMER SECTION */}
+        <div className="timer-section">
+          <h4>{t.timerTitle}</h4>
+          {!isTimerRunning ? (
+            <div className="timer-controls">
+              <button onClick={() => startTimer(1)}>1 {t.timerMin}</button>
+              <button onClick={() => startTimer(5)}>5 {t.timerMin}</button>
+              <button onClick={() => startTimer(15)}>15 {t.timerMin}</button>
+              <button onClick={() => startTimer(30)}>30 {t.timerMin}</button>
+            </div>
+          ) : (
+            <div className="timer-display">
+              <span className="time-remaining">{t.timerRunning} <strong>{formatTime(timerSeconds)}</strong></span>
+              <button className="cancel-timer-btn" onClick={cancelTimer}>{t.stopTimer}</button>
+            </div>
+          )}
+        </div>
 
         <div className="presets-section">
           <h4>{t.presets}</h4>
@@ -308,20 +371,16 @@ function App() {
         </div>
       </main>
 
-      {/* FAQ Section */}
       <section className="faq-section">
         <h3>{t.faqTitle}</h3>
-        
         <div className="faq-item">
           <h4>{t.faq1_title}</h4>
           <p>{t.faq1_text}</p>
         </div>
-
         <div className="faq-item">
           <h4>{t.faq2_title}</h4>
           <p>{t.faq2_text}</p>
         </div>
-
         <div className="faq-item">
           <h4>{t.faq3_title}</h4>
           <p>{t.faq3_text}</p>
