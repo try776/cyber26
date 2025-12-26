@@ -24,6 +24,8 @@ const translations = {
     timerRunning: "Timer läuft:",
     timerMin: "Min.",
     stopTimer: "Timer abbrechen",
+    customTimePlaceholder: "Minuten eingeben...",
+    startTimerBtn: "Start",
     // FAQ Section
     faqTitle: "Wofür kann ich diesen Tongenerator nutzen?",
     faq1_title: "Instrumente stimmen & Audio-Tests",
@@ -55,6 +57,8 @@ const translations = {
     timerRunning: "Tiempo restante:",
     timerMin: "Min.",
     stopTimer: "Cancelar temporizador",
+    customTimePlaceholder: "Ingresar minutos...",
+    startTimerBtn: "Inicio",
     // FAQ Section
     faqTitle: "¿Para qué puedo usar este generador?",
     faq1_title: "Afinación y Pruebas de Audio",
@@ -78,6 +82,7 @@ function App() {
   // Timer States
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [customMinutes, setCustomMinutes] = useState('');
 
   const [presets, setPresets] = useState(() => {
     const saved = localStorage.getItem('tone-presets');
@@ -114,8 +119,7 @@ function App() {
         setTimerSeconds((prev) => prev - 1);
       }, 1000);
     } else if (timerSeconds === 0 && isTimerRunning) {
-      // Timer abgelaufen
-      if (isPlaying) togglePlay(); // Ton stoppen
+      if (isPlaying) togglePlay(); 
       setIsTimerRunning(false);
       clearInterval(interval);
     }
@@ -125,8 +129,14 @@ function App() {
   const startTimer = (minutes) => {
     setTimerSeconds(minutes * 60);
     setIsTimerRunning(true);
-    // Optional: Wenn Timer startet, auch Ton starten? 
-    // Aktuell lassen wir den Nutzer den Ton separat starten, damit er erst einstellen kann.
+    setCustomMinutes(''); // Reset Input field
+  };
+
+  const handleCustomTimerStart = () => {
+    const mins = parseInt(customMinutes);
+    if (mins > 0) {
+      startTimer(mins);
+    }
   };
 
   const cancelTimer = () => {
@@ -338,12 +348,26 @@ function App() {
         <div className="timer-section">
           <h4>{t.timerTitle}</h4>
           {!isTimerRunning ? (
-            <div className="timer-controls">
-              <button onClick={() => startTimer(1)}>1 {t.timerMin}</button>
-              <button onClick={() => startTimer(5)}>5 {t.timerMin}</button>
-              <button onClick={() => startTimer(15)}>15 {t.timerMin}</button>
-              <button onClick={() => startTimer(30)}>30 {t.timerMin}</button>
-            </div>
+            <>
+              <div className="timer-controls">
+                <button onClick={() => startTimer(1)}>1 {t.timerMin}</button>
+                <button onClick={() => startTimer(5)}>5 {t.timerMin}</button>
+                <button onClick={() => startTimer(15)}>15 {t.timerMin}</button>
+                <button onClick={() => startTimer(30)}>30 {t.timerMin}</button>
+                <button onClick={() => startTimer(45)}>45 {t.timerMin}</button>
+                <button onClick={() => startTimer(60)}>60 {t.timerMin}</button>
+              </div>
+              <div className="timer-custom">
+                <input 
+                  type="number" 
+                  min="1" 
+                  placeholder={t.customTimePlaceholder}
+                  value={customMinutes}
+                  onChange={(e) => setCustomMinutes(e.target.value)}
+                />
+                <button onClick={handleCustomTimerStart}>{t.startTimerBtn}</button>
+              </div>
+            </>
           ) : (
             <div className="timer-display">
               <span className="time-remaining">{t.timerRunning} <strong>{formatTime(timerSeconds)}</strong></span>

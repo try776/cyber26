@@ -322,8 +322,9 @@ header { margin-bottom: 2rem; }
 
 .timer-controls {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr); /* Geändert auf 3 Spalten für 6 Buttons */
   gap: 10px;
+  margin-bottom: 12px;
 }
 
 .timer-controls button {
@@ -340,6 +341,34 @@ header { margin-bottom: 2rem; }
 .timer-controls button:hover {
   background: var(--accent-color);
   color: white;
+}
+
+/* Custom Timer Input */
+.timer-custom {
+  display: flex;
+  gap: 10px;
+}
+
+.timer-custom input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--accent-color);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.timer-custom button {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 0 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.timer-custom button:hover {
+  background: var(--accent-hover);
 }
 
 .timer-display {
@@ -516,5 +545,5 @@ header { margin-bottom: 2rem; }
   .card { padding: 1.5rem; }
   .fine-tuning { grid-template-columns: repeat(2, 1fr); }
   .play-btn { font-size: 1.2rem; padding: 1rem; }
-  .timer-controls { grid-template-columns: repeat(2, 1fr); }
+  .timer-controls { grid-template-columns: repeat(3, 1fr); }
 }
