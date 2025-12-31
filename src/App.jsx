@@ -117,7 +117,7 @@ function App() {
     if (isTimerRunning && timerSeconds > 0) {
       interval = setInterval(() => {
         setTimerSeconds((prev) => prev - 1);
-      }, 1000);
+      }, 10000);
     } else if (timerSeconds === 0 && isTimerRunning) {
       if (isPlaying) togglePlay(); 
       setIsTimerRunning(false);
