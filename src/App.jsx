@@ -117,7 +117,7 @@ function App() {
     if (isTimerRunning && timerSeconds > 0) {
       interval = setInterval(() => {
         setTimerSeconds((prev) => prev - 1);
-      }, 10000);
+      }, 1000);
     } else if (timerSeconds === 0 && isTimerRunning) {
       if (isPlaying) togglePlay(); 
       setIsTimerRunning(false);
@@ -293,7 +293,7 @@ function App() {
 
         <div className="slider-container">
           <input 
-            type="range" min="20" max="10000" step="0.01" 
+            type="range" min="20" max="100000" step="0.1" 
             value={frequency} 
             onChange={(e) => setFrequency(Number(e.target.value))}
             className="slider freq-slider"
