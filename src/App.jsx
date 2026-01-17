@@ -333,10 +333,10 @@ function App() {
 
   const adjustFreq = (amount) => setFrequency(f => {
     const newFreq = parseFloat((f + amount).toFixed(2));
-    return Math.max(1, Math.min(20000, newFreq));
+    return Math.max(1, Math.min(100000, newFreq));
   });
 
-  const multFreq = (factor) => setFrequency(f => Math.max(1, Math.min(20000, parseFloat((f * factor).toFixed(2)))));
+  const multFreq = (factor) => setFrequency(f => Math.max(1, Math.min(100000, parseFloat((f * factor).toFixed(2)))));
 
   return (
     <div className="app-container">
@@ -374,7 +374,7 @@ function App() {
 
         <div className="slider-container">
           <input 
-            type="range" min="20" max="20000" step="1" 
+            type="range" min="20" max="100000" step="1" 
             value={frequency} 
             onChange={(e) => setFrequency(Number(e.target.value))}
             className="slider freq-slider"
