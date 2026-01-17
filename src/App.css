@@ -227,6 +227,20 @@ header { margin-bottom: 2rem; }
   background: var(--accent-hover);
 }
 
+/* Balance Slider Special Styling */
+.balance-slider-group {
+  margin-top: 1.5rem;
+}
+
+.balance-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-top: 5px;
+}
+
 /* Fine Tuning Buttons */
 .fine-tuning {
   display: grid;
@@ -305,7 +319,7 @@ header { margin-bottom: 2rem; }
 .timer-section {
   margin-top: 2rem;
   text-align: left;
-  background: #e0f2f1; /* Sehr helles Teal */
+  background: #e0f2f1;
   padding: 1.5rem;
   border-radius: 12px;
   border: 2px solid var(--accent-light);
@@ -322,7 +336,7 @@ header { margin-bottom: 2rem; }
 
 .timer-controls {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Geändert auf 3 Spalten für 6 Buttons */
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin-bottom: 12px;
 }

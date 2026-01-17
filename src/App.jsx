@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 
 const translations = {
@@ -8,6 +8,7 @@ const translations = {
     play: "Ton abspielen",
     stop: "Stoppen",
     volume: "Lautstärke",
+    balance: "Balance (L/R)",
     waveform: "Klangfarbe",
     presets: "Gespeicherte Favoriten",
     savePreset: "Aktuelle Einstellung speichern",
@@ -16,7 +17,7 @@ const translations = {
     warning: "⚠️ Hinweis: Bitte achten Sie auf eine angenehme Lautstärke.",
     octaveDown: "Oktave tiefer",
     octaveUp: "Oktave höher",
-    desc: "Tipp: Nutzen Sie die Leertaste für Start/Stopp und die Pfeiltasten zur Feinjustierung.",
+    desc: "Tipp: Leertaste für Start/Stopp | Pfeiltasten (↑/↓) für Frequenz | (←/→) für Feinjustierung.",
     onAir: "AKTIV",
     off: "BEREIT",
     // Timer
@@ -41,6 +42,7 @@ const translations = {
     play: "Reproducir Tono",
     stop: "Detener",
     volume: "Volumen",
+    balance: "Balance (I/D)",
     waveform: "Timbre",
     presets: "Favoritos Guardados",
     savePreset: "Guardar configuración actual",
@@ -49,7 +51,7 @@ const translations = {
     warning: "⚠️ Nota: Por favor, mantenga un volumen cómodo.",
     octaveDown: "Octava baja",
     octaveUp: "Octava alta",
-    desc: "Consejo: Use la barra espaciadora para iniciar/parar y las flechas para ajustar.",
+    desc: "Consejo: Espacio para iniciar/parar | Flechas (↑/↓) para frecuencia.",
     onAir: "ACTIVO",
     off: "LISTO",
     // Timer
@@ -77,6 +79,7 @@ function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [frequency, setFrequency] = useState(440);
   const [volume, setVolume] = useState(0.5);
+  const [pan, setPan] = useState(0); // -1 (Links) bis 1 (Rechts)
   const [waveType, setWaveType] = useState('sine');
   
   // Timer States
@@ -95,6 +98,7 @@ function App() {
   const audioCtxRef = useRef(null);
   const oscillatorRef = useRef(null);
   const gainNodeRef = useRef(null);
+  const pannerRef = useRef(null);
   const analyserRef = useRef(null);
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
@@ -103,10 +107,25 @@ function App() {
     if (!audioCtxRef.current) {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       audioCtxRef.current = new AudioContext();
+      
+      // Node creation
       gainNodeRef.current = audioCtxRef.current.createGain();
+      
+      // Stereo Panner (Browser Support Check)
+      if (audioCtxRef.current.createStereoPanner) {
+        pannerRef.current = audioCtxRef.current.createStereoPanner();
+      } else {
+        // Fallback for old browsers (ignore pan)
+        pannerRef.current = audioCtxRef.current.createGain(); 
+      }
+
       analyserRef.current = audioCtxRef.current.createAnalyser();
       analyserRef.current.fftSize = 2048;
-      gainNodeRef.current.connect(analyserRef.current);
+
+      // Connect: Gain -> Panner -> Analyser -> Dest
+      // Note: Oscillator connects to Gain later
+      gainNodeRef.current.connect(pannerRef.current);
+      pannerRef.current.connect(analyserRef.current);
       analyserRef.current.connect(audioCtxRef.current.destination);
     }
   }, []);
@@ -119,7 +138,7 @@ function App() {
         setTimerSeconds((prev) => prev - 1);
       }, 1000);
     } else if (timerSeconds === 0 && isTimerRunning) {
-      if (isPlaying) togglePlay(); 
+      if (isPlaying) stopSound(); 
       setIsTimerRunning(false);
       clearInterval(interval);
     }
@@ -129,14 +148,12 @@ function App() {
   const startTimer = (minutes) => {
     setTimerSeconds(minutes * 60);
     setIsTimerRunning(true);
-    setCustomMinutes(''); // Reset Input field
+    setCustomMinutes('');
   };
 
   const handleCustomTimerStart = () => {
     const mins = parseInt(customMinutes);
-    if (mins > 0) {
-      startTimer(mins);
-    }
+    if (mins > 0) startTimer(mins);
   };
 
   const cancelTimer = () => {
@@ -205,37 +222,101 @@ function App() {
     return () => cancelAnimationFrame(animationRef.current);
   }, [isPlaying]);
 
+  // Audio Parameter Updates
   useEffect(() => {
     if (oscillatorRef.current) {
-      oscillatorRef.current.frequency.setValueAtTime(frequency, audioCtxRef.current.currentTime);
+      oscillatorRef.current.frequency.setTargetAtTime(frequency, audioCtxRef.current.currentTime, 0.02);
       oscillatorRef.current.type = waveType;
     }
   }, [frequency, waveType]);
 
   useEffect(() => {
     if (gainNodeRef.current) {
+      // Soft volume change
       gainNodeRef.current.gain.setTargetAtTime(volume, audioCtxRef.current.currentTime, 0.05);
     }
   }, [volume]);
 
-  const togglePlay = () => {
+  useEffect(() => {
+    if (pannerRef.current && pannerRef.current.pan) {
+      pannerRef.current.pan.setTargetAtTime(pan, audioCtxRef.current.currentTime, 0.05);
+    }
+  }, [pan]);
+
+  const startSound = () => {
     if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume();
 
-    if (isPlaying) {
-      if (oscillatorRef.current) {
-        oscillatorRef.current.stop();
-        oscillatorRef.current.disconnect();
-        oscillatorRef.current = null;
-      }
-    } else {
-      oscillatorRef.current = audioCtxRef.current.createOscillator();
-      oscillatorRef.current.type = waveType;
-      oscillatorRef.current.frequency.setValueAtTime(frequency, audioCtxRef.current.currentTime);
-      oscillatorRef.current.connect(gainNodeRef.current);
-      oscillatorRef.current.start();
-    }
-    setIsPlaying(!isPlaying);
+    oscillatorRef.current = audioCtxRef.current.createOscillator();
+    oscillatorRef.current.type = waveType;
+    oscillatorRef.current.frequency.setValueAtTime(frequency, audioCtxRef.current.currentTime);
+    oscillatorRef.current.connect(gainNodeRef.current);
+    
+    // Anti-Pop: Fade In
+    gainNodeRef.current.gain.setValueAtTime(0, audioCtxRef.current.currentTime);
+    gainNodeRef.current.gain.linearRampToValueAtTime(volume, audioCtxRef.current.currentTime + 0.1);
+
+    oscillatorRef.current.start();
+    setIsPlaying(true);
   };
+
+  const stopSound = useCallback(() => {
+    if (oscillatorRef.current) {
+      // Anti-Pop: Fade Out
+      const currentTime = audioCtxRef.current.currentTime;
+      gainNodeRef.current.gain.cancelScheduledValues(currentTime);
+      gainNodeRef.current.gain.setValueAtTime(gainNodeRef.current.gain.value, currentTime);
+      gainNodeRef.current.gain.linearRampToValueAtTime(0, currentTime + 0.1);
+
+      const osc = oscillatorRef.current;
+      osc.stop(currentTime + 0.1);
+      setTimeout(() => {
+        osc.disconnect();
+      }, 150); // Clean up after fade out
+      
+      oscillatorRef.current = null;
+    }
+    setIsPlaying(false);
+  }, []); // Depend on nothing stable
+
+  const togglePlay = () => {
+    if (isPlaying) stopSound();
+    else startSound();
+  };
+
+  // Keyboard Control
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ignore if user is typing in an input
+      if (e.target.tagName === 'INPUT') return;
+
+      switch(e.code) {
+        case 'Space':
+          e.preventDefault();
+          togglePlay();
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          adjustFreq(1);
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          adjustFreq(-1);
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          adjustFreq(-0.1);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          adjustFreq(0.1);
+          break;
+        default: break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPlaying, frequency]); // Re-bind when state changes to ensure fresh values
 
   const savePreset = () => {
     const newPreset = { freq: frequency, type: waveType, name: `${frequency}Hz - ${waveType}` };
@@ -293,7 +374,7 @@ function App() {
 
         <div className="slider-container">
           <input 
-            type="range" min="20" max="100000" step="0.1" 
+            type="range" min="20" max="20000" step="1" 
             value={frequency} 
             onChange={(e) => setFrequency(Number(e.target.value))}
             className="slider freq-slider"
@@ -303,15 +384,15 @@ function App() {
 
         <div className="fine-tuning">
           <button onClick={() => multFreq(0.5)}>× ½</button>
-          <button onClick={() => adjustFreq(-0.01)}>- 0.01</button>
-          <button onClick={() => adjustFreq(0.01)}>+ 0.01</button>
+          <button onClick={() => adjustFreq(-1)}>- 1</button>
+          <button onClick={() => adjustFreq(1)}>+ 1</button>
           <button onClick={() => multFreq(2)}>× 2</button>
         </div>
 
         <div className="fine-tuning" style={{ marginTop: '12px' }}>
             <button onClick={() => setFrequency(234.45)}>234.45 Hz</button>
             <button onClick={() => setFrequency(40)} style={{ gridColumn: 'span 2' }}>40 Hz (Forschung)</button>
-            <button onClick={() => adjustFreq(10)}>+ 10</button>
+            <button onClick={() => setFrequency(432)}>432 Hz</button>
         </div>
 
         <hr className="divider" />
@@ -340,6 +421,23 @@ function App() {
               className="slider volume-slider"
               aria-label="Lautstärke"
             />
+            
+            <div className="balance-slider-group">
+              <label>{t.balance}</label>
+              <input 
+                type="range" min="-1" max="1" step="0.1" 
+                value={pan} onChange={(e) => setPan(parseFloat(e.target.value))}
+                className="slider balance-slider"
+                style={{ height: '8px' }}
+                aria-label="Balance"
+              />
+              <div className="balance-labels">
+                <span>L</span>
+                <span>|</span>
+                <span>R</span>
+              </div>
+            </div>
+
             <p className="info-text">{t.warning}</p>
           </div>
         </div>
