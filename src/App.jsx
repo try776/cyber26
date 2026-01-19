@@ -8,7 +8,7 @@ const translations = {
     introTitle: "Willkommen bei Radionik ES",
     introText: "Erzeugen Sie präzise Audio-Frequenzen für akustische Analysen, Therapie-Ansätze oder zum Stimmen von Instrumenten. Nutzen Sie die Multi-Fenster-Funktion für binaurale Beats oder komplexe Interferenzen.",
     safetyTitle: "Wichtiger Sicherheitshinweis",
-    safetyText: "Hohe Frequenzen und Lautstärken können das Gehör und Lautsprecher beschädigen. Starten Sie immer mit geringer Lautstärke.",
+    safetyText: "Hohe Frequenzen und Lautstärken können Gehör und Lautsprecher beschädigen. Starten Sie immer mit geringer Lautstärke. Bitte beachten Sie zudem: Der Stumm-Modus an Ihrem Smartphone muss ausgeschaltet sein, damit die Tonausgabe funktioniert.",
     addInstance: "+ Neuen Generator öffnen",
     play: "Start",
     stop: "Stopp",
@@ -28,8 +28,8 @@ const translations = {
     minShort: "min",
     // Z-App & Scalar Info
     zAppTitle: "Z-App & Skalar-Therapie",
-    zAppText: "Frequenzgenerator für PC, Tablet oder Handy. Im Zap-App können Sie Belastungen aufsuchen und direkt auf Skalargenerator fern übertragen. Falls die Frequenz nicht im ZAP-APP möglich ist, können Sie es mit diesem Generator tun.",
-    scalarInfo: "Für Therapie wird ein Skalargenerator benötigt, damit eine Übertragung möglich ist. Legen Sie Haare oder ein Haarfläschchen auf den Skalargenerator – so übertragen Sie fern jede Hz-Frequenz. Mehr dazu in unseren Seminaren und Kursen.",
+    zAppText: "Ihr Frequenzgenerator für PC, Tablet oder Smartphone. Mit der Z-App können Sie Belastungen analysieren und direkt auf den Skalargenerator übertragen. Sollte eine Frequenz in der App nicht verfügbar sein, können Sie diesen Generator nutzen.",
+    scalarInfo: "Für die Therapie ist ein Skalargenerator als Übertragungsmedium erforderlich. Platzieren Sie eine Haarprobe oder ein Haarfläschchen auf dem Gerät, um jede beliebige Frequenz über die Ferne zu übertragen. Weitere Informationen erhalten Sie in unseren Seminaren und Kursen.",
     storeBtnAndroid: "Google Play Store",
     storeBtnIOS: "Apple App Store",
     // FAQ
@@ -106,10 +106,10 @@ const documents = [
 function ToneInstance({ id, onRemove, t, initialFreq }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [frequency, setFrequency] = useState(initialFreq);
-  const [volume, setVolume] = useState(0.3); 
-  const [pan, setPan] = useState(0); 
+  const [volume, setVolume] = useState(0.3);
+  const [pan, setPan] = useState(0);
   const [waveType, setWaveType] = useState('sine');
-  
+
   // Timer
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -128,16 +128,16 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     const newCtx = new AudioContext();
     audioCtxRef.current = newCtx;
-    
+
     // Nodes erstellen
     const newGain = newCtx.createGain();
     gainNodeRef.current = newGain;
-    
+
     let newPanner;
     if (newCtx.createStereoPanner) {
       newPanner = newCtx.createStereoPanner();
     } else {
-      newPanner = newCtx.createGain(); 
+      newPanner = newCtx.createGain();
     }
     pannerRef.current = newPanner;
 
@@ -152,7 +152,7 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
 
     // Initial Values apply
     newGain.gain.value = volume;
-    if(newPanner.pan) newPanner.pan.value = pan;
+    if (newPanner.pan) newPanner.pan.value = pan;
 
     // Cleanup function
     return () => {
@@ -162,8 +162,8 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
       audioCtxRef.current = null;
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Timer Logic
   useEffect(() => {
@@ -194,10 +194,10 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
     const draw = () => {
       animationRef.current = requestAnimationFrame(draw);
       analyserRef.current.getByteTimeDomainData(dataArray);
-      ctx.fillStyle = '#ffffff'; 
+      ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.lineWidth = 2;
-      ctx.strokeStyle = isPlaying ? '#00796b' : '#e2e8f0'; 
+      ctx.strokeStyle = isPlaying ? '#00796b' : '#e2e8f0';
       ctx.beginPath();
 
       const sliceWidth = canvas.width * 1.0 / bufferLength;
@@ -248,19 +248,19 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
     }
 
     if (audioCtxRef.current.state === 'closed') {
-        console.warn("Context is closed, cannot start.");
-        return;
+      console.warn("Context is closed, cannot start.");
+      return;
     }
 
     oscillatorRef.current = audioCtxRef.current.createOscillator();
     oscillatorRef.current.type = waveType;
     oscillatorRef.current.frequency.setValueAtTime(frequency, audioCtxRef.current.currentTime);
     oscillatorRef.current.connect(gainNodeRef.current);
-    
+
     gainNodeRef.current.gain.cancelScheduledValues(audioCtxRef.current.currentTime);
     gainNodeRef.current.gain.setValueAtTime(0, audioCtxRef.current.currentTime);
     gainNodeRef.current.gain.linearRampToValueAtTime(volume, audioCtxRef.current.currentTime + 0.1);
-    
+
     oscillatorRef.current.start();
     setIsPlaying(true);
   };
@@ -271,10 +271,10 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
       gainNodeRef.current.gain.cancelScheduledValues(ct);
       gainNodeRef.current.gain.setValueAtTime(gainNodeRef.current.gain.value, ct);
       gainNodeRef.current.gain.linearRampToValueAtTime(0, ct + 0.1);
-      
+
       const osc = oscillatorRef.current;
       osc.stop(ct + 0.1);
-      setTimeout(() => { try { osc.disconnect(); } catch(e){} }, 150);
+      setTimeout(() => { try { osc.disconnect(); } catch (e) { } }, 150);
       oscillatorRef.current = null;
     }
     setIsPlaying(false);
@@ -296,75 +296,75 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
 
       <div className="tile-controls">
         <div className="freq-display-small">
-          <input 
-            type="number" value={frequency} 
-            onChange={(e) => setFrequency(Number(e.target.value))} 
+          <input
+            type="number" value={frequency}
+            onChange={(e) => setFrequency(Number(e.target.value))}
           />
           <span className="unit-small">Hz</span>
         </div>
 
         <div className="main-actions">
-           <button className={`play-btn-small ${isPlaying ? 'stop' : ''}`} onClick={togglePlay}>
-             {isPlaying ? t.stop : t.play}
-           </button>
+          <button className={`play-btn-small ${isPlaying ? 'stop' : ''}`} onClick={togglePlay}>
+            {isPlaying ? t.stop : t.play}
+          </button>
         </div>
 
-        <input 
-          type="range" min="20" max="100000" step="1" 
+        <input
+          type="range" min="20" max="100000" step="1"
           value={frequency} onChange={(e) => setFrequency(Number(e.target.value))}
-          className="slider-small" 
+          className="slider-small"
         />
 
         <div className="fine-tune-grid">
-           <button onClick={() => multFreq(0.5)}>½</button>
-           <button onClick={() => adjustFreq(-1)}>-1</button>
-           <button onClick={() => adjustFreq(1)}>+1</button>
-           <button onClick={() => multFreq(2)}>2×</button>
+          <button onClick={() => multFreq(0.5)}>½</button>
+          <button onClick={() => adjustFreq(-1)}>-1</button>
+          <button onClick={() => adjustFreq(1)}>+1</button>
+          <button onClick={() => multFreq(2)}>2×</button>
         </div>
 
         <select className="rife-select-small" onChange={(e) => setFrequency(Number(e.target.value))} value="">
-            <option value="" disabled>{t.rifePlaceholder}</option>
-            {rifeList.map((r, i) => <option key={i} value={r.freq}>{r.label}</option>)}
+          <option value="" disabled>{t.rifePlaceholder}</option>
+          {rifeList.map((r, i) => <option key={i} value={r.freq}>{r.label}</option>)}
         </select>
 
         <div className="params-row">
-            <div className="param-col">
-                <label>{t.volume}</label>
-                <input type="range" min="0" max="1" step="0.01" value={volume} onChange={e => setVolume(parseFloat(e.target.value))} />
-            </div>
-            <div className="param-col">
-                <label>{t.balance}</label>
-                <input type="range" min="-1" max="1" step="0.1" value={pan} onChange={e => setPan(parseFloat(e.target.value))} />
-            </div>
+          <div className="param-col">
+            <label>{t.volume}</label>
+            <input type="range" min="0" max="1" step="0.01" value={volume} onChange={e => setVolume(parseFloat(e.target.value))} />
+          </div>
+          <div className="param-col">
+            <label>{t.balance}</label>
+            <input type="range" min="-1" max="1" step="0.1" value={pan} onChange={e => setPan(parseFloat(e.target.value))} />
+          </div>
         </div>
 
         <div className="waveform-mini">
-             {['sine', 'square', 'sawtooth', 'triangle'].map(type => (
-                <button key={type} className={waveType === type ? 'active' : ''} onClick={() => setWaveType(type)}>
-                  {type === 'sine' ? '∿' : type.substring(0,2)}
-                </button>
-             ))}
+          {['sine', 'square', 'sawtooth', 'triangle'].map(type => (
+            <button key={type} className={waveType === type ? 'active' : ''} onClick={() => setWaveType(type)}>
+              {type === 'sine' ? '∿' : type.substring(0, 2)}
+            </button>
+          ))}
         </div>
 
         <div className="mini-timer">
-            {!isTimerRunning ? (
-                <>
-                  <button onClick={() => startTimer(15)}>15{t.minShort}</button>
-                  <button onClick={() => startTimer(30)}>30{t.minShort}</button>
-                  <input 
-                    type="number" placeholder="Min..." 
-                    value={customMinutes} 
-                    onChange={e => setCustomMinutes(e.target.value)}
-                    className="timer-input-mini"
-                  />
-                  {customMinutes && <button className="timer-go-btn" onClick={() => startTimer(Number(customMinutes))}>Go</button>}
-                </>
-            ) : (
-                <div className="timer-running-badge">
-                    ⏳ {Math.floor(timerSeconds/60)}:{timerSeconds%60 < 10 ? '0' : ''}{timerSeconds%60}
-                    <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(0); }}>✕</button>
-                </div>
-            )}
+          {!isTimerRunning ? (
+            <>
+              <button onClick={() => startTimer(15)}>15{t.minShort}</button>
+              <button onClick={() => startTimer(30)}>30{t.minShort}</button>
+              <input
+                type="number" placeholder="Min..."
+                value={customMinutes}
+                onChange={e => setCustomMinutes(e.target.value)}
+                className="timer-input-mini"
+              />
+              {customMinutes && <button className="timer-go-btn" onClick={() => startTimer(Number(customMinutes))}>Go</button>}
+            </>
+          ) : (
+            <div className="timer-running-badge">
+              ⏳ {Math.floor(timerSeconds / 60)}:{timerSeconds % 60 < 10 ? '0' : ''}{timerSeconds % 60}
+              <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(0); }}>✕</button>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -407,68 +407,68 @@ function App() {
       <div className="hero-section">
         <h2>{t.subtitle}</h2>
         <p className="intro-text">{t.introText}</p>
-        
+
         <div className="alert-box">
-              <strong>{t.safetyTitle}:</strong> {t.safetyText}
+          <strong>{t.safetyTitle}:</strong> {t.safetyText}
         </div>
-        
+
         <div className="action-bar">
-              <button className="add-btn" onClick={addInstance}>{t.addInstance}</button>
+          <button className="add-btn" onClick={addInstance}>{t.addInstance}</button>
         </div>
       </div>
 
       {/* TILES GRID - NOW CENTERED */}
       <div className="tiles-grid">
         {instances.map((inst) => (
-            <ToneInstance 
-                key={inst.id} 
-                id={inst.id} 
-                initialFreq={inst.freq}
-                onRemove={removeInstance} 
-                t={t} 
-            />
+          <ToneInstance
+            key={inst.id}
+            id={inst.id}
+            initialFreq={inst.freq}
+            onRemove={removeInstance}
+            t={t}
+          />
         ))}
       </div>
 
       {/* BOTTOM CONTENT */}
       <div className="global-sections">
-        
+
         {/* NEW Z-APP SECTION */}
         <section className="zapp-section">
-            <h3>{t.zAppTitle}</h3>
-            <p className="zapp-intro">{t.zAppText}</p>
-            
-            <div className="store-buttons">
-                <a href="https://play.google.com/store/apps/details/Z_App_Rife_App?id=com.zappkit.zappid&hl=de_CH" target="_blank" rel="noopener noreferrer" className="store-btn android">
-                   🤖 {t.storeBtnAndroid}
-                </a>
-                <a href="https://apps.apple.com/us/app/z-app/id1509263287" target="_blank" rel="noopener noreferrer" className="store-btn ios">
-                   🍎 {t.storeBtnIOS}
-                </a>
-            </div>
+          <h3>{t.zAppTitle}</h3>
+          <p className="zapp-intro">{t.zAppText}</p>
 
-            <div className="scalar-info-box">
-                <span className="info-icon">📡</span>
-                <p>{t.scalarInfo}</p>
-            </div>
+          <div className="store-buttons">
+            <a href="https://play.google.com/store/apps/details/Z_App_Rife_App?id=com.zappkit.zappid&hl=de_CH" target="_blank" rel="noopener noreferrer" className="store-btn android">
+              🤖 {t.storeBtnAndroid}
+            </a>
+            <a href="https://apps.apple.com/us/app/z-app/id1509263287" target="_blank" rel="noopener noreferrer" className="store-btn ios">
+              🍎 {t.storeBtnIOS}
+            </a>
+          </div>
+
+          <div className="scalar-info-box">
+            <span className="info-icon">📡</span>
+            <p>{t.scalarInfo}</p>
+          </div>
         </section>
 
         <section className="faq-section">
-            <h3>{t.faqTitle}</h3>
-            <div className="faq-grid">
-                <div className="faq-item">
-                    <h4>{t.faq1_title}</h4>
-                    <p>{t.faq1_text}</p>
-                </div>
-                <div className="faq-item">
-                    <h4>{t.faq2_title}</h4>
-                    <p>{t.faq2_text}</p>
-                </div>
-                <div className="faq-item">
-                    <h4>{t.faq3_title}</h4>
-                    <p>{t.faq3_text}</p>
-                </div>
+          <h3>{t.faqTitle}</h3>
+          <div className="faq-grid">
+            <div className="faq-item">
+              <h4>{t.faq1_title}</h4>
+              <p>{t.faq1_text}</p>
             </div>
+            <div className="faq-item">
+              <h4>{t.faq2_title}</h4>
+              <p>{t.faq2_text}</p>
+            </div>
+            <div className="faq-item">
+              <h4>{t.faq3_title}</h4>
+              <p>{t.faq3_text}</p>
+            </div>
+          </div>
         </section>
 
         <div className="downloads-section">
@@ -487,7 +487,7 @@ function App() {
           </div>
         </div>
       </div>
-      
+
       <footer className="footer">
         &copy; {new Date().getFullYear()} Radionik ES. All rights reserved.
       </footer>
