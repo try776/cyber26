@@ -190,6 +190,41 @@ body {
     display: grid; gap: 2rem;
 }
 
+/* Z-App Section Styling */
+.zapp-section {
+    background: #e3f2fd; /* Light Blue BG to distinguish */
+    padding: 2rem; 
+    border-radius: 12px; 
+    border: 1px solid #bbdefb;
+    text-align: center;
+}
+.zapp-section h3 { margin-top: 0; color: #0277bd; font-size: 1.4rem; }
+.zapp-intro { color: #37474f; margin-bottom: 1.5rem; line-height: 1.5; }
+
+.store-buttons { display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap; }
+.store-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold;
+    color: white; transition: opacity 0.2s;
+}
+.store-btn:hover { opacity: 0.9; }
+.store-btn.android { background: #3ddc84; color: #1f2937; } /* Android Green */
+.store-btn.ios { background: #000000; } /* Apple Black */
+
+.scalar-info-box {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    text-align: left;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.scalar-info-box .info-icon { font-size: 1.5rem; margin-top: -2px; }
+.scalar-info-box p { margin: 0; font-size: 0.95rem; color: #455a64; line-height: 1.5; }
+
+
 .faq-section, .downloads-section {
   background: white; padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color);
 }

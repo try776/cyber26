@@ -26,6 +26,12 @@ const translations = {
     startTimerBtn: "Start",
     cancelTimer: "X",
     minShort: "min",
+    // Z-App & Scalar Info
+    zAppTitle: "Z-App & Skalar-Therapie",
+    zAppText: "Frequenzgenerator für PC, Tablet oder Handy. Im Zap-App können Sie Belastungen aufsuchen und direkt auf Skalargenerator fern übertragen. Falls die Frequenz nicht im ZAP-APP möglich ist, können Sie es mit diesem Generator tun.",
+    scalarInfo: "Für Therapie wird ein Skalargenerator benötigt, damit eine Übertragung möglich ist. Legen Sie Haare oder ein Haarfläschchen auf den Skalargenerator – so übertragen Sie fern jede Hz-Frequenz. Mehr dazu in unseren Seminaren und Kursen.",
+    storeBtnAndroid: "Google Play Store",
+    storeBtnIOS: "Apple App Store",
     // FAQ
     faqTitle: "Häufige Anwendungsbereiche",
     faq1_title: "Instrumente & Audio-Tests",
@@ -59,6 +65,12 @@ const translations = {
     startTimerBtn: "Inicio",
     cancelTimer: "X",
     minShort: "min",
+    // Z-App & Scalar Info
+    zAppTitle: "Z-App y Terapia Escalar",
+    zAppText: "Generador de frecuencias para PC, tableta o móvil. En la Z-App puede detectar cargas y transmitirlas directamente al generador escalar. Si la frecuencia no está disponible en la Z-App, puede usar este generador.",
+    scalarInfo: "Para la terapia se necesita un generador escalar para permitir la transmisión. Coloque cabello o una muestra en el generador escalar para transmitir cualquier frecuencia a distancia. Más información en nuestros seminarios.",
+    storeBtnAndroid: "Google Play Store",
+    storeBtnIOS: "Apple App Store",
     // FAQ
     faqTitle: "¿Usos del generador?",
     faq1_title: "Afinación y Audio",
@@ -383,7 +395,7 @@ function App() {
       <div className="top-bar">
         <div className="branding">
           <h1 className="logo">Radionik ES</h1>
-          <span className="version-tag">v2.0</span>
+          <span className="version-tag">v2.1</span>
         </div>
         <div className="lang-switch">
           <button className={lang === 'de' ? 'active' : ''} onClick={() => setLang('de')}>DE</button>
@@ -397,11 +409,11 @@ function App() {
         <p className="intro-text">{t.introText}</p>
         
         <div className="alert-box">
-             <strong>{t.safetyTitle}:</strong> {t.safetyText}
+              <strong>{t.safetyTitle}:</strong> {t.safetyText}
         </div>
         
         <div className="action-bar">
-             <button className="add-btn" onClick={addInstance}>{t.addInstance}</button>
+              <button className="add-btn" onClick={addInstance}>{t.addInstance}</button>
         </div>
       </div>
 
@@ -421,6 +433,26 @@ function App() {
       {/* BOTTOM CONTENT */}
       <div className="global-sections">
         
+        {/* NEW Z-APP SECTION */}
+        <section className="zapp-section">
+            <h3>{t.zAppTitle}</h3>
+            <p className="zapp-intro">{t.zAppText}</p>
+            
+            <div className="store-buttons">
+                <a href="https://play.google.com/store/apps/details/Z_App_Rife_App?id=com.zappkit.zappid&hl=de_CH" target="_blank" rel="noopener noreferrer" className="store-btn android">
+                   🤖 {t.storeBtnAndroid}
+                </a>
+                <a href="https://apps.apple.com/us/app/z-app/id1509263287" target="_blank" rel="noopener noreferrer" className="store-btn ios">
+                   🍎 {t.storeBtnIOS}
+                </a>
+            </div>
+
+            <div className="scalar-info-box">
+                <span className="info-icon">📡</span>
+                <p>{t.scalarInfo}</p>
+            </div>
+        </section>
+
         <section className="faq-section">
             <h3>{t.faqTitle}</h3>
             <div className="faq-grid">
