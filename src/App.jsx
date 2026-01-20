@@ -6,7 +6,7 @@ const translations = {
     title: "Radionik ES",
     subtitle: "Professioneller Multi-Frequenz Generator",
     introTitle: "Willkommen bei Radionik ES",
-    introText: "Erzeugen Sie präzise Audio-Frequenzen für akustische Analysen, Therapie-Ansätze oder zum Stimmen von Instrumenten. Nutzen Sie die Multi-Fenster-Funktion für binaurale Beats oder komplexe Interferenzen.",
+    introText: "Erzeugen Sie präzise Herz-Frequenzen für Therapie-Ansätze. Es wird ein Skalar-Generator benötigt. Es können auch mehrer Frequenzen gleichzeitig angewendet werden.",
     safetyTitle: "Wichtiger Sicherheitshinweis",
     safetyText: "Hohe Frequenzen und Lautstärken können Gehör und Lautsprecher beschädigen. Starten Sie immer mit geringer Lautstärke. Bitte beachten Sie zudem: Der Stumm-Modus an Ihrem Smartphone muss ausgeschaltet sein, damit die Tonausgabe funktioniert.",
     addInstance: "+ Neuen Generator öffnen",
