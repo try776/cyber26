@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'autoUpdate', // Updates werden sofort geladen
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'Online Tone Generator',
-        short_name: 'ToneGen',
-        description: 'Professioneller Frequenzgenerator und Audio-Test-Tool',
+        name: 'Radionik ES - Frequenz Generator', // Langname für Splashscreen
+        short_name: 'Radionik ES', // Name unter dem Icon auf dem Homescreen
+        description: 'Professioneller Multi-Frequenz Generator und Therapie-Tool',
         theme_color: '#121212',
         background_color: '#121212',
         display: 'standalone',
