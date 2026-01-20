@@ -96,10 +96,20 @@ const rifeList = [
   { freq: 432, label: "432 Hz - Verdi A" }
 ];
 
+// UPDATED DOCUMENTS LIST
 const documents = [
-  { id: 1, name: "Handbuch.pdf", size: "1.2 MB" },
-  { id: 2, name: "Frequenz-Liste.pdf", size: "850 KB" },
-  { id: 3, name: "Sicherheitshinweise.pdf", size: "120 KB" }
+  { 
+    id: 1, 
+    name: "Full List Royal Rife Frequencies.pdf", 
+    size: "4.8 MB",
+    url: "https://imagestoragesatellite.s3.eu-north-1.amazonaws.com/Full+List+Royal+Rife+Frequencies.pdf"
+  },
+  { 
+    id: 2, 
+    name: "DNA-related Pathogen Frequency Sets.pdf", 
+    size: "8 MB",
+    url: "https://static1.squarespace.com/static/5b730ce0697a982f5dd4b3b8/t/660ae18e1a84a4625fe8a2d2/1711989138059/The+DNA-related+Pathogen+Frequency+Sets.pdf"
+  }
 ];
 
 // --- INDIVIDUAL TONE GENERATOR COMPONENT ---
@@ -481,7 +491,14 @@ function App() {
                   <span className="file-name">{doc.name}</span>
                   <span className="file-size">{doc.size}</span>
                 </div>
-                <a href={`#`} className="download-btn-small">{t.downloadBtn}</a>
+                <a 
+                  href={doc.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="download-btn-small"
+                >
+                  {t.downloadBtn}
+                </a>
               </div>
             ))}
           </div>
