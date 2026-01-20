@@ -182,7 +182,7 @@ const documents = [
   { 
     id: 2, 
     name: "DNA-related Pathogen Frequency Sets.pdf", 
-    size: "PDF",
+    size: "5 MB",
     url: "https://static1.squarespace.com/static/5b730ce0697a982f5dd4b3b8/t/660ae18e1a84a4625fe8a2d2/1711989138059/The+DNA-related+Pathogen+Frequency+Sets.pdf"
   }
 ];
