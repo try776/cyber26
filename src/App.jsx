@@ -17,7 +17,7 @@ const translations = {
     waveform: "Welle",
     removeInstance: "Kachel schließen",
     rifeLabel: "Rife & Solfeggio Presets",
-    rifePlaceholder: "Frequenz wählen...",
+    rifePlaceholder: "Suchen (z.B. Schmerz)...",
     downloadsTitle: "Dokumente & Anleitungen",
     downloadBtn: "Download",
     warning: "⚠️ Lautstärke beachten",
@@ -26,6 +26,8 @@ const translations = {
     startTimerBtn: "Start",
     cancelTimer: "X",
     minShort: "min",
+    openSearch: "🔍 Preset suchen / Liste öffnen",
+    closeSearch: "Liste schließen",
     // Z-App & Scalar Info
     zAppTitle: "Z-App & Skalar-Therapie",
     zAppText: "Ihr Frequenzgenerator für PC, Tablet oder Smartphone. Mit der Z-App können Sie Belastungen analysieren und direkt auf den Skalargenerator übertragen. Sollte eine Frequenz in der App nicht verfügbar sein, können Sie diesen Generator nutzen.",
@@ -36,8 +38,6 @@ const translations = {
     faqTitle: "Häufige Anwendungsbereiche",
     faq1_title: "Instrumente & Audio-Tests",
     faq1_text: "Ideal zum Stimmen von Instrumenten (Kammerton A 440Hz/432Hz), für Resonanzexperimente in der Physik oder zum Testen von Subwoofern.",
-    faq2_title: "Tinnitus & Frequenz-Maskierung",
-    faq2_text: "Kann zur Bestimmung der subjektiven Tinnitus-Frequenz genutzt werden (Matching). Bitte prüfen Sie immer auch eine Oktave höher oder tiefer.",
     faq3_title: "Binaurale Beats & Gehirnwellen",
     faq3_text: "Nutzen Sie zwei Kacheln mit leicht unterschiedlichen Frequenzen (z.B. 400Hz links und 410Hz rechts), um im Gehirn eine Phantom-Schwingung von 10Hz (Alpha-Wellen) zu erzeugen.",
   },
@@ -56,7 +56,7 @@ const translations = {
     waveform: "Onda",
     removeInstance: "Cerrar panel",
     rifeLabel: "Rife y Solfeggio",
-    rifePlaceholder: "Seleccionar...",
+    rifePlaceholder: "Buscar (ej. Dolor)...",
     downloadsTitle: "Documentos",
     downloadBtn: "Descargar",
     warning: "⚠️ Cuidado con el volumen",
@@ -65,6 +65,8 @@ const translations = {
     startTimerBtn: "Inicio",
     cancelTimer: "X",
     minShort: "min",
+    openSearch: "🔍 Buscar Preset",
+    closeSearch: "Cerrar lista",
     // Z-App & Scalar Info
     zAppTitle: "Z-App y Terapia Escalar",
     zAppText: "Generador de frecuencias para PC, tableta o móvil. En la Z-App puede detectar cargas y transmitirlas directamente al generador escalar. Si la frecuencia no está disponible en la Z-App, puede usar este generador.",
@@ -82,21 +84,94 @@ const translations = {
   }
 };
 
+// ERWEITERTE RIFE LISTE (Daten aus XLSX)
 const rifeList = [
-  { freq: 174, label: "174 Hz - Schmerz/Dolor" },
-  { freq: 285, label: "285 Hz - Heilung/Curación" },
-  { freq: 396, label: "396 Hz - Angst/Miedo (UT)" },
-  { freq: 417, label: "417 Hz - Wandel/Cambio (RE)" },
-  { freq: 528, label: "528 Hz - DNA (MI)" },
-  { freq: 639, label: "639 Hz - Verbindung/Relación" },
-  { freq: 741, label: "741 Hz - Intuition (SOL)" },
-  { freq: 852, label: "852 Hz - Ordnung/Orden (LA)" },
-  { freq: 963, label: "963 Hz - Göttlich/Divino" },
-  { freq: 40, label: "40 Hz - Gamma/Focus" },
-  { freq: 432, label: "432 Hz - Verdi A" }
-];
+  // Solfeggio & Chakras
+  { freq: 174, label: "174 Hz - Schmerz & Sicherheit / Dolor" },
+  { freq: 285, label: "285 Hz - Regeneration / Curación" },
+  { freq: 396, label: "396 Hz - Angst lösen (UT) / Miedo" },
+  { freq: 417, label: "417 Hz - Resonanz Veränderung (RE) / Cambio" },
+  { freq: 528, label: "528 Hz - DNA Reparatur (MI) / DNA" },
+  { freq: 639, label: "639 Hz - Harmonie (FA) / Relación" },
+  { freq: 741, label: "741 Hz - Intuition (SOL) / Intuición" },
+  { freq: 852, label: "852 Hz - Ordnung (LA) / Orden" },
+  { freq: 963, label: "963 Hz - Zirbeldrüse / Divino" },
+  { freq: 432, label: "432 Hz - Verdi A / Naturton" },
+  { freq: 40, label: "40 Hz - Gamma (Fokus/Focus)" },
+  
+  // Rife - A-Z Selection (from your Files)
+  { freq: 10000, label: "Abdominal Pain / Bauchschmerzen (Acute)" },
+  { freq: 3000, label: "Abdominal Pain (Secondary)" },
+  { freq: 880, label: "Abscesses / Abszesse (General)" },
+  { freq: 10000, label: "Acidosis / Übersäuerung" },
+  { freq: 5000, label: "Acne / Akne (General)" },
+  { freq: 880, label: "Allergies / Allergien (General)" },
+  { freq: 20, label: "Alopecia / Haarausfall" },
+  { freq: 430, label: "Alzheimers / Alzheimer (General)" },
+  { freq: 10000, label: "Amenorrhea / Ausbleiben der Regel" },
+  { freq: 5000, label: "Anemia / Blutarmut" },
+  { freq: 304, label: "Anxiety / Angstzustände" },
+  { freq: 10000, label: "Arthritis (General)" },
+  { freq: 1234, label: "Asthma (General)" },
+  { freq: 787, label: "Backache / Rückenschmerzen" },
+  { freq: 880, label: "Bacterial Infections / Bakterielle Infektionen" },
+  { freq: 1550, label: "Bad Breath / Mundgeruch (Halitosis)" },
+  { freq: 10000, label: "Blood Pressure High / Bluthochdruck" },
+  { freq: 20, label: "Blood Pressure Low / Niedriger Blutdruck" },
+  { freq: 380, label: "Bone Trauma / Knochentrauma" },
+  { freq: 880, label: "Bronchitis" },
+  { freq: 190, label: "Burns / Verbrennungen" },
+  { freq: 2127, label: "Cancer / Krebs (General Rife)" },
+  { freq: 465, label: "Candida (General)" },
+  { freq: 2008, label: "Carpal Tunnel Syndrome" },
+  { freq: 10000, label: "Chronic Fatigue / Chronische Müdigkeit" },
+  { freq: 880, label: "Cold & Flu / Erkältung & Grippe" },
+  { freq: 802, label: "Constipation / Verstopfung" },
+  { freq: 26, label: "Cramps / Krämpfe" },
+  { freq: 190, label: "Dental Infection / Zahninfektion" },
+  { freq: 3.5, label: "Depression (General)" },
+  { freq: 60, label: "Detox / Entgiftung (General)" },
+  { freq: 2127, label: "Diabetes (General)" },
+  { freq: 880, label: "Ear Conditions / Ohrenbeschwerden" },
+  { freq: 787, label: "Eczema / Ekzeme" },
+  { freq: 10000, label: "Eye Inflammation / Augenentzündung" },
+  { freq: 428, label: "Fatigue / Müdigkeit" },
+  { freq: 880, label: "Fever / Fieber" },
+  { freq: 328, label: "Fibromyalgia" },
+  { freq: 465, label: "Fungal Infection / Pilzinfektion" },
+  { freq: 3000, label: "Gallstones / Gallensteine" },
+  { freq: 880, label: "Gastritis / Magenschleimhaut" },
+  { freq: 3000, label: "Gout / Gicht" },
+  { freq: 160, label: "Headache / Kopfschmerzen" },
+  { freq: 5000, label: "Heart General / Herz (Allgemein)" },
+  { freq: 880, label: "Hemorrhoids / Hämorrhoiden" },
+  { freq: 1550, label: "Hepatitis (General)" },
+  { freq: 1488, label: "Herpes (General)" },
+  { freq: 10000, label: "Hot Flashes / Hitzewallungen" },
+  { freq: 2720, label: "Inflammation / Entzündungen" },
+  { freq: 880, label: "Influenza / Grippe" },
+  { freq: 10000, label: "Insomnia / Schlaflosigkeit" },
+  { freq: 10000, label: "Kidney Stones / Nierensteine" },
+  { freq: 33.13, label: "Liver Support / Leber Unterstützung" },
+  { freq: 432, label: "Lyme / Borreliose" },
+  { freq: 10000, label: "Migraine / Migräne" },
+  { freq: 5000, label: "Multiple Sclerosis" },
+  { freq: 3000, label: "Pain Acute / Akuter Schmerz" },
+  { freq: 125, label: "Parasites / Parasiten (General)" },
+  { freq: 5000, label: "Pneumonia / Lungenentzündung" },
+  { freq: 2127, label: "Prostate / Prostata (General)" },
+  { freq: 110, label: "Psoriasis / Schuppenflechte" },
+  { freq: 250, label: "Sciatica / Ischias" },
+  { freq: 787, label: "Sinusitis / Nasennebenhöhlen" },
+  { freq: 880, label: "Sore Throat / Halsschmerzen" },
+  { freq: 2127, label: "Stomach Disorders / Magenbeschwerden" },
+  { freq: 20, label: "Tinnitus" },
+  { freq: 3000, label: "Toothache / Zahnschmerzen" },
+  { freq: 880, label: "Ulcers / Geschwüre" },
+  { freq: 2170, label: "Warts / Warzen" },
+  { freq: 727, label: "Yeast / Hefepilz (General)" }
+].sort((a, b) => a.label.localeCompare(b.label)); // Alphabetisch sortieren
 
-// UPDATED DOCUMENTS LIST
 const documents = [
   { 
     id: 1, 
@@ -107,7 +182,7 @@ const documents = [
   { 
     id: 2, 
     name: "DNA-related Pathogen Frequency Sets.pdf", 
-    size: "8 MB",
+    size: "PDF",
     url: "https://static1.squarespace.com/static/5b730ce0697a982f5dd4b3b8/t/660ae18e1a84a4625fe8a2d2/1711989138059/The+DNA-related+Pathogen+Frequency+Sets.pdf"
   }
 ];
@@ -119,6 +194,10 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
   const [volume, setVolume] = useState(0.3);
   const [pan, setPan] = useState(0);
   const [waveType, setWaveType] = useState('sine');
+
+  // Search State
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Timer
   const [timerSeconds, setTimerSeconds] = useState(0);
@@ -133,13 +212,18 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
 
-  // Init Audio Context for this instance
+  // Filter Rife List based on search
+  const filteredRife = rifeList.filter(item => 
+    item.label.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    item.freq.toString().includes(searchTerm)
+  );
+
+  // Init Audio Context
   useEffect(() => {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     const newCtx = new AudioContext();
     audioCtxRef.current = newCtx;
 
-    // Nodes erstellen
     const newGain = newCtx.createGain();
     gainNodeRef.current = newGain;
 
@@ -155,16 +239,13 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
     newAnalyser.fftSize = 1024;
     analyserRef.current = newAnalyser;
 
-    // Connect Graph: Gain -> Panner -> Analyser -> Dest
     newGain.connect(newPanner);
     newPanner.connect(newAnalyser);
     newAnalyser.connect(newCtx.destination);
 
-    // Initial Values apply
     newGain.gain.value = volume;
     if (newPanner.pan) newPanner.pan.value = pan;
 
-    // Cleanup function
     return () => {
       if (newCtx.state !== 'closed') {
         newCtx.close().catch(e => console.error("Error closing context:", e));
@@ -230,7 +311,6 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
     else if (animationRef.current) cancelAnimationFrame(animationRef.current);
   }, [isPlaying]);
 
-  // Update Audio Params
   useEffect(() => {
     if (oscillatorRef.current && audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
       oscillatorRef.current.frequency.setTargetAtTime(frequency, audioCtxRef.current.currentTime, 0.02);
@@ -252,15 +332,8 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
 
   const startSound = () => {
     if (!audioCtxRef.current) return;
-
-    if (audioCtxRef.current.state === 'suspended') {
-      audioCtxRef.current.resume();
-    }
-
-    if (audioCtxRef.current.state === 'closed') {
-      console.warn("Context is closed, cannot start.");
-      return;
-    }
+    if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume();
+    if (audioCtxRef.current.state === 'closed') return;
 
     oscillatorRef.current = audioCtxRef.current.createOscillator();
     oscillatorRef.current.type = waveType;
@@ -291,9 +364,15 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
   };
 
   const togglePlay = () => isPlaying ? stopSound() : startSound();
-
   const adjustFreq = (amt) => setFrequency(f => Math.max(1, Math.min(150000, parseFloat((f + amt).toFixed(2)))));
   const multFreq = (fac) => setFrequency(f => Math.max(1, Math.min(150000, parseFloat((f * fac).toFixed(2)))));
+
+  // Select Frequency from Search List
+  const selectPreset = (freq) => {
+    setFrequency(freq);
+    setSearchTerm("");
+    setShowSearch(false);
+  };
 
   return (
     <div className="tile-card">
@@ -332,10 +411,43 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
           <button onClick={() => multFreq(2)}>2×</button>
         </div>
 
-        <select className="rife-select-small" onChange={(e) => setFrequency(Number(e.target.value))} value="">
-          <option value="" disabled>{t.rifePlaceholder}</option>
-          {rifeList.map((r, i) => <option key={i} value={r.freq}>{r.label}</option>)}
-        </select>
+        {/* SEARCHABLE DROPDOWN */}
+        <div style={{width: '100%', marginBottom: '10px'}}>
+          <button 
+            className="search-toggle-btn"
+            onClick={() => setShowSearch(!showSearch)}
+          >
+            {showSearch ? t.closeSearch : t.openSearch}
+          </button>
+          
+          {showSearch && (
+            <div className="search-wrapper">
+              <input 
+                type="text" 
+                className="search-input"
+                placeholder={t.rifePlaceholder}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                autoFocus
+              />
+              <div className="search-results">
+                {filteredRife.length > 0 ? (
+                  filteredRife.map((r, i) => (
+                    <div 
+                      key={i} 
+                      className="search-item"
+                      onClick={() => selectPreset(r.freq)}
+                    >
+                      <strong>{r.freq} Hz</strong> - {r.label}
+                    </div>
+                  ))
+                ) : (
+                  <div className="search-item" style={{color: '#999'}}>Keine Ergebnisse / No results</div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="params-row">
           <div className="param-col">
@@ -389,7 +501,6 @@ function App() {
 
   const addInstance = () => {
     const lastFreq = instances[instances.length - 1]?.freq || 440;
-    // Offset slightly to avoid immediate phasing if audio starts instantly
     setInstances([...instances, { id: Date.now(), freq: lastFreq }]);
   };
 
@@ -405,7 +516,7 @@ function App() {
       <div className="top-bar">
         <div className="branding">
           <h1 className="logo">Radionik ES</h1>
-          <span className="version-tag">v2.1</span>
+          <span className="version-tag">v2.2</span>
         </div>
         <div className="lang-switch">
           <button className={lang === 'de' ? 'active' : ''} onClick={() => setLang('de')}>DE</button>
@@ -470,10 +581,7 @@ function App() {
               <h4>{t.faq1_title}</h4>
               <p>{t.faq1_text}</p>
             </div>
-            <div className="faq-item">
-              <h4>{t.faq2_title}</h4>
-              <p>{t.faq2_text}</p>
-            </div>
+          
             <div className="faq-item">
               <h4>{t.faq3_title}</h4>
               <p>{t.faq3_text}</p>
