@@ -145,90 +145,99 @@ const documents = [
 
 // --- PDF PARSING LOGIC ---
 // This function downloads and parses the PDF in the browser
+// --- PDF PARSING LOGIC ---
 async function fetchAndParsePDF(url) {
   try {
     const loadingTask = pdfjsLib.getDocument(url);
     const pdf = await loadingTask.promise;
     let fullText = '';
     
-    // Extract text from all pages
+    // Alle Seiten auslesen
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
-      const pageText = textContent.items.map(item => item.str).join(' ');
+      // Wir fügen Zeilenumbrüche hinzu, um die Struktur zu erhalten
+      const pageText = textContent.items.map(item => item.str).join('\n'); 
       fullText += pageText + '\n';
     }
 
-    // Parse the extracted text (CSV-like structure in PDF)
     const entries = [];
     const lines = fullText.split('\n');
     let currentEntry = null;
-    const freqRegex = /\[([\d\.]+)\]/g; // Matches [123.45]
+    
+    // Regex für Frequenzen: [123] oder [123.45]
+    const freqRegex = /\[([\d\.]+)\]/g;
 
-    // Simple parser heuristic since pdf.js text is sometimes unstructured
-    // We look for patterns like "Name","Desc"
-    
-    // Cleaning and splitting strategy
-    // We regex for the pattern: "Name","Desc"
-    // Note: This regex is an approximation as PDF text extraction loses some formatting
-    const entryRegex = /"([^"]+)"\s*,\s*"([^"]*)"/g;
-    
-    // Since PDF text extraction is messy, we use a simpler approach:
-    // Look for clusters of Frequencies and associate them with preceding text.
-    // However, for this specific CSV-dump PDF, we can try to reconstruct lines.
-    
-    // ALTERNATIVE ROBUST STRATEGY FOR THIS PDF:
-    // 1. Find all frequencies.
-    // 2. Find all text strings.
-    // 3. Rebuild. 
-    
-    // Let's use the logic that worked in Node.js but adapted for raw strings:
-    // We split by " to find quoted strings.
-    
-    const parts = fullText.split('"');
-    let bufferName = null;
-    let bufferDesc = null;
-    
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i].trim();
-      if (!part) continue;
-      
-      // Check if this part contains frequencies
-      const freqsInPart = [];
-      let match;
-      while ((match = freqRegex.exec(part)) !== null) {
-        freqsInPart.push(parseFloat(match[1]));
-      }
-      
-      if (freqsInPart.length > 0) {
-        // This part has frequencies. It belongs to the last found name.
-        if (bufferName) {
-           // Check if we already have this entry, extend it
-           const existing = entries.find(e => e.name === bufferName);
-           if (existing) {
-             existing.freqs = [...new Set([...existing.freqs, ...freqsInPart])];
-           } else {
-             entries.push({ name: bufferName, desc: bufferDesc || "", freqs: freqsInPart });
+    for (let line of lines) {
+       line = line.trim();
+       if (!line) continue;
+       if (line.includes("--- PAGE")) continue; // Seitenzahlen ignorieren
+       
+       // 1. Suche alle Frequenzen in dieser Zeile
+       const freqsInLine = [];
+       let match;
+       while ((match = freqRegex.exec(line)) !== null) {
+           const f = parseFloat(match[1]);
+           if (!isNaN(f)) freqsInLine.push(f);
+       }
+       
+       // 2. Prüfen, ob ein neuer Eintrag beginnt
+       // Logik: Zeile beginnt mit einem Anführungszeichen, aber NICHT mit einem Komma davor.
+       // Das PDF Format ist grob: "Name","Desc"...
+       // Fortsetzungszeilen sind oft: ,,"[Freq]..."
+       
+       const startsWithQuote = line.startsWith('"');
+       const isContinuation = line.startsWith(',,') || line.startsWith(', "');
+
+       if (startsWithQuote && !isContinuation) {
+           // Wahrscheinlich ein neuer Name!
+           // Wir splitten grob am Trennzeichen ","
+           const parts = line.split('","');
+           
+           let name = parts[0].replace(/"/g, '').trim();
+           let desc = "";
+           
+           if (parts.length > 1) {
+               desc = parts[1].replace(/"/g, '').trim();
            }
-        }
-      } else {
-        // This part is text (Name or Desc)
-        // Heuristic: If it doesn't look like a comma or bracket junk
-        if (part.length > 2 && !part.startsWith(',') && !part.includes('--- PAGE')) {
-           // If we have a name but no desc, this might be desc
-           if (bufferName && !bufferDesc) {
-             bufferDesc = part;
-           } else {
-             // New Name
-             bufferName = part;
-             bufferDesc = null;
+           
+           // Header-Zeilen ignorieren
+           if (name.toLowerCase() === 'name' || name.toLowerCase() === 'description') continue;
+           
+           if (name.length > 1) {
+               // Wenn wir schon einen Eintrag sammeln, speichern wir ihn jetzt ab
+               if (currentEntry) {
+                   // Nur speichern, wenn er auch Frequenzen hat (oder wir geben ihm eine Chance im nächsten Loop)
+                   if (currentEntry.freqs.length > 0) {
+                       entries.push(currentEntry);
+                   }
+               }
+               // Neuen Eintrag starten
+               currentEntry = { name, desc, freqs: [] };
            }
-        }
-      }
+       }
+       
+       // 3. Frequenzen zum aktuellen Eintrag hinzufügen
+       // (Egal ob sie in der Namenszeile stehen oder in einer Fortsetzungszeile)
+       if (currentEntry && freqsInLine.length > 0) {
+           // Füge nur Frequenzen hinzu, die noch nicht drin sind (Duplikate vermeiden)
+           for (const f of freqsInLine) {
+               if (!currentEntry.freqs.includes(f)) {
+                   currentEntry.freqs.push(f);
+               }
+           }
+       }
     }
     
-    // Filter valid entries
-    return entries.filter(e => e.freqs.length > 0 && e.name.length > 2);
+    // Den allerletzten Eintrag nicht vergessen
+    if (currentEntry && currentEntry.freqs.length > 0) {
+        entries.push(currentEntry);
+    }
+    
+    // Alphabetisch sortieren
+    entries.sort((a, b) => a.name.localeCompare(b.name));
+    
+    return entries;
     
   } catch (error) {
     console.error("PDF Parse Error:", error);
