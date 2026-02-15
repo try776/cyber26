@@ -187,10 +187,14 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
     const draw = () => {
       animationRef.current = requestAnimationFrame(draw);
       analyserRef.current.getByteTimeDomainData(dataArray);
-      ctx.fillStyle = '#ffffff';
+      
+      // NEU: Weiche, natürliche Farben für den Visualizer
+      ctx.fillStyle = '#EFF2F0'; // Entspricht --surface-alt
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = isPlaying ? '#00796b' : '#e2e8f0';
+      ctx.lineWidth = 2.5;
+      
+      // Salbeigrün, wenn aktiv, weiches Grau, wenn gestoppt
+      ctx.strokeStyle = isPlaying ? '#6B8E7B' : '#BFCAC4'; 
       ctx.beginPath();
 
       const sliceWidth = canvas.width * 1.0 / bufferLength;
@@ -270,83 +274,95 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
   const multFreq = (fac) => setFrequency(f => Math.max(1, Math.min(150000, parseFloat((f * fac).toFixed(2)))));
 
   return (
-    <div className="tile-card">
+    <article className="tile-card">
       <div className="tile-header">
         <div className="visualizer-wrapper">
-          <canvas ref={canvasRef} width="300" height="60"></canvas>
+          <canvas ref={canvasRef} width="300" height="80"></canvas>
         </div>
-        <button className="remove-btn" onClick={() => onRemove(id)} title={t.removeInstance}>✕</button>
+        <button className="icon-button delete-btn" onClick={() => onRemove(id)} title={t.removeInstance}>
+          ✕
+        </button>
       </div>
 
       <div className="tile-controls">
-        <div className="freq-display-small">
+        <div className="freq-display-wrapper">
           <input
-            type="number" value={frequency}
+            className="freq-input"
+            type="number" 
+            value={frequency}
             onChange={(e) => setFrequency(Number(e.target.value))}
           />
-          <span className="unit-small">Hz</span>
+          <span className="unit-label">Hz</span>
         </div>
 
-        <div className="main-actions">
-          <button className={`play-btn-small ${isPlaying ? 'stop' : ''}`} onClick={togglePlay}>
-            {isPlaying ? t.stop : t.play}
-          </button>
-        </div>
+        <button className={`primary-button play-btn ${isPlaying ? 'is-playing' : ''}`} onClick={togglePlay}>
+          {isPlaying ? t.stop : t.play}
+        </button>
 
-        <input
-          type="range" min="20" max="100000" step="1"
-          value={frequency} onChange={(e) => setFrequency(Number(e.target.value))}
-          className="slider-small"
-        />
+        <div className="slider-group">
+          <input
+            type="range" min="20" max="10000" step="1"
+            value={frequency} onChange={(e) => setFrequency(Number(e.target.value))}
+            className="modern-slider"
+          />
+        </div>
 
         <div className="fine-tune-grid">
-          <button onClick={() => multFreq(0.5)}>½</button>
-          <button onClick={() => adjustFreq(-1)}>-1</button>
-          <button onClick={() => adjustFreq(1)}>+1</button>
-          <button onClick={() => multFreq(2)}>2×</button>
+          <button className="secondary-button small" onClick={() => multFreq(0.5)}>½</button>
+          <button className="secondary-button small" onClick={() => adjustFreq(-1)}>-1</button>
+          <button className="secondary-button small" onClick={() => adjustFreq(1)}>+1</button>
+          <button className="secondary-button small" onClick={() => multFreq(2)}>2×</button>
         </div>
 
         <div className="params-row">
           <div className="param-col">
             <label>{t.volume}</label>
-            <input type="range" min="0" max="1" step="0.01" value={volume} onChange={e => setVolume(parseFloat(e.target.value))} />
+            <input className="modern-slider" type="range" min="0" max="1" step="0.01" value={volume} onChange={e => setVolume(parseFloat(e.target.value))} />
           </div>
           <div className="param-col">
             <label>{t.balance}</label>
-            <input type="range" min="-1" max="1" step="0.1" value={pan} onChange={e => setPan(parseFloat(e.target.value))} />
+            <input className="modern-slider" type="range" min="-1" max="1" step="0.1" value={pan} onChange={e => setPan(parseFloat(e.target.value))} />
           </div>
         </div>
 
-        <div className="waveform-mini">
+        <div className="waveform-group">
           {['sine', 'square', 'sawtooth', 'triangle'].map(type => (
-            <button key={type} className={waveType === type ? 'active' : ''} onClick={() => setWaveType(type)}>
-              {type === 'sine' ? '∿' : type.substring(0, 2)}
+            <button 
+              key={type} 
+              className={`waveform-btn ${waveType === type ? 'active' : ''}`} 
+              onClick={() => setWaveType(type)}
+              title={type}
+            >
+              {type === 'sine' ? '∿' : type === 'square' ? '⎍' : type === 'sawtooth' ? '◿' : '△'}
             </button>
           ))}
         </div>
 
-        <div className="mini-timer">
+        <div className="timer-group">
           {!isTimerRunning ? (
-            <>
-              <button onClick={() => startTimer(15)}>15{t.minShort}</button>
-              <button onClick={() => startTimer(30)}>30{t.minShort}</button>
+            <div className="timer-controls">
+              <button className="secondary-button small" onClick={() => startTimer(15)}>15{t.minShort}</button>
+              <button className="secondary-button small" onClick={() => startTimer(30)}>30{t.minShort}</button>
               <input
                 type="number" placeholder="Min..."
                 value={customMinutes}
                 onChange={e => setCustomMinutes(e.target.value)}
-                className="timer-input-mini"
+                className="timer-input"
               />
-              {customMinutes && <button className="timer-go-btn" onClick={() => startTimer(Number(customMinutes))}>Go</button>}
-            </>
+              {customMinutes && <button className="primary-button small" onClick={() => startTimer(Number(customMinutes))}>Go</button>}
+            </div>
           ) : (
             <div className="timer-running-badge">
-              ⏳ {Math.floor(timerSeconds / 60)}:{timerSeconds % 60 < 10 ? '0' : ''}{timerSeconds % 60}
-              <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(0); }}>✕</button>
+              <span className="timer-icon">⏳</span> 
+              <span className="timer-text">
+                {Math.floor(timerSeconds / 60)}:{timerSeconds % 60 < 10 ? '0' : ''}{timerSeconds % 60}
+              </span>
+              <button className="icon-button small" onClick={() => { setIsTimerRunning(false); setTimerSeconds(0); }}>✕</button>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -369,33 +385,41 @@ function App() {
 
   return (
     <Authenticator hideSignUp={true}>
-      {({ signOut, user }) => (
-        <div className="app-container">
-          <div className="top-bar">
+      {({ signOut }) => (
+        <main className="app-layout">
+          <header className="app-header">
             <div className="branding">
               <h1 className="logo">Radionik ES</h1>
               <span className="version-tag">v2.4</span>
             </div>
-            <div className="lang-switch">
-              <button className={lang === 'de' ? 'active' : ''} onClick={() => setLang('de')}>DE</button>
-              <button className={lang === 'es' ? 'active' : ''} onClick={() => setLang('es')}>ES</button>
-              <button onClick={signOut} className="signout-btn">{t.signOut}</button>
+            <div className="header-actions">
+              <div className="lang-switch">
+                <button className={`lang-btn ${lang === 'de' ? 'active' : ''}`} onClick={() => setLang('de')}>DE</button>
+                <button className={`lang-btn ${lang === 'es' ? 'active' : ''}`} onClick={() => setLang('es')}>ES</button>
+              </div>
+              <button onClick={signOut} className="secondary-button signout-btn">{t.signOut}</button>
             </div>
-          </div>
+          </header>
 
           <div className="hero-section">
-            <h2>{t.subtitle}</h2>
+            <h2 className="subtitle">{t.subtitle}</h2>
             <p className="intro-text">{t.introText}</p>
-            <div className="alert-box">
-              <strong>{t.safetyTitle}:</strong> {t.safetyText}
+            
+            <div className="alert-box warning">
+              <span className="alert-icon">⚠️</span>
+              <div>
+                <strong>{t.safetyTitle}:</strong> {t.safetyText}
+              </div>
             </div>
 
             <div className="action-bar">
-              <button className="add-btn" onClick={addInstance}>{t.addInstance}</button>
+              <button className="primary-button add-generator-btn" onClick={addInstance}>
+                {t.addInstance}
+              </button>
             </div>
           </div>
 
-          <div className="tiles-grid">
+          <section className="generators-grid">
             {instances.map((inst) => (
               <ToneInstance
                 key={inst.id}
@@ -405,76 +429,78 @@ function App() {
                 t={t}
               />
             ))}
-          </div>
+          </section>
 
-          <div className="global-sections">
-            
-            {/* --- NEUE SUCHFUNKTION ALS IFRAME --- */}
-            <section className="search-section" style={{ marginBottom: '40px' }}>
-              <h3 style={{ marginBottom: '15px' }}>{t.searchTitle}</h3>
-              <iframe 
-                src="https://pdfsearchv1.digi4.click/" 
-                width="100%" 
-                height="650px" 
-                style={{ border: 'none', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', backgroundColor: 'transparent' }} 
-                title="PDF Suche"
-              ></iframe>
-            </section>
-
-            <section className="zapp-section">
-              <h3>{t.zAppTitle}</h3>
-              <p className="zapp-intro">{t.zAppText}</p>
-              <div className="store-buttons">
-                <a href="https://play.google.com/store/apps/details/Z_App_Rife_App?id=com.zappkit.zappid&hl=de_CH" target="_blank" rel="noopener noreferrer" className="store-btn android">
-                  🤖 {t.storeBtnAndroid}
-                </a>
-                <a href="https://apps.apple.com/us/app/z-app/id1509263287" target="_blank" rel="noopener noreferrer" className="store-btn ios">
-                  🍎 {t.storeBtnIOS}
-                </a>
-              </div>
-              <div className="scalar-info-box">
-                <span className="info-icon">📡</span>
-                <p>{t.scalarInfo}</p>
+          <div className="content-sections">
+            <section className="card-section">
+              <div className="iframe-container">
+                <iframe 
+                  src="https://pdfsearchv1.digi4.click/" 
+                  width="100%" 
+                  height="650px" 
+                  title="PDF Suche"
+                ></iframe>
               </div>
             </section>
 
-            <section className="faq-section">
-              <h3>{t.faqTitle}</h3>
-              <div className="faq-grid">
-                <div className="faq-item">
-                  <h4>{t.faq1_title}</h4>
-                  <p>{t.faq1_text}</p>
+            <div className="grid-2-col">
+              <section className="card-section zapp-section">
+                <h3 className="section-title">{t.zAppTitle}</h3>
+                <p className="section-text">{t.zAppText}</p>
+                <div className="store-buttons">
+                  <a href="https://play.google.com/store/apps/details?id=com.zappkit.zappid" target="_blank" rel="noopener noreferrer" className="store-btn android">
+                    <span className="store-icon">🤖</span> {t.storeBtnAndroid}
+                  </a>
+                  <a href="https://apps.apple.com/us/app/z-app/id1509263287" target="_blank" rel="noopener noreferrer" className="store-btn ios">
+                    <span className="store-icon">🍎</span> {t.storeBtnIOS}
+                  </a>
                 </div>
-                <div className="faq-item">
-                  <h4>{t.faq3_title}</h4>
-                  <p>{t.faq3_text}</p>
+                <div className="alert-box info">
+                  <span className="alert-icon">📡</span>
+                  <p>{t.scalarInfo}</p>
                 </div>
-              </div>
-            </section>
+              </section>
 
-            <div className="downloads-section">
-              <h4>{t.downloadsTitle}</h4>
-              <div className="files-list">
+              <section className="card-section faq-section">
+                <h3 className="section-title">{t.faqTitle}</h3>
+                <div className="faq-list">
+                  <div className="faq-item">
+                    <h4>{t.faq1_title}</h4>
+                    <p>{t.faq1_text}</p>
+                  </div>
+                  <div className="faq-item">
+                    <h4>{t.faq3_title}</h4>
+                    <p>{t.faq3_text}</p>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <section className="card-section downloads-section">
+              <h3 className="section-title">{t.downloadsTitle}</h3>
+              <ul className="data-list">
                 {documents.map(doc => (
-                  <div key={doc.id} className="file-item">
-                    <span className="file-icon">📄</span>
+                  <li key={doc.id} className="list-item">
                     <div className="file-info">
-                      <span className="file-name">{doc.name}</span>
-                      <span className="file-size">{doc.size}</span>
+                      <span className="file-icon">📄</span>
+                      <div>
+                        <span className="file-name">{doc.name}</span>
+                        <span className="file-size">{doc.size}</span>
+                      </div>
                     </div>
-                    <a href={doc.url} target="_blank" rel="noopener noreferrer" className="download-btn-small">
+                    <a href={doc.url} target="_blank" rel="noopener noreferrer" className="secondary-button download-btn">
                       {t.downloadBtn}
                     </a>
-                  </div>
+                  </li>
                 ))}
-              </div>
-            </div>
+              </ul>
+            </section>
           </div>
 
-          <footer className="footer">
-            &copy; {new Date().getFullYear()} Radionik ES. All rights reserved.
+          <footer className="app-footer">
+            <p>&copy; {new Date().getFullYear()} Radionik ES. All rights reserved.</p>
           </footer>
-        </div>
+        </main>
       )}
     </Authenticator>
   );
