@@ -1,25 +1,25 @@
-/* App.css - Radionik ES Natural & Soft Theme */
+/* App.css - Radionik ES Natural & Soft Theme (Mobile Optimized) */
 
 :root {
   /* Natural & Soft Color Palette */
-  --primary: #6B8E7B; /* Beruhigendes Salbeigrün */
+  --primary: #6B8E7B;
   --primary-hover: #587967;
   --secondary: #8B9D91;
   
-  --danger: #D97777; /* Sanftes Rotorange */
+  --danger: #D97777;
   --danger-hover: #C36161;
   --success: #6B8E7B;
   
-  --warning-bg: #FCF9F2; /* Sehr weiches Creme */
+  --warning-bg: #FCF9F2;
   --warning-text: #967142;
   --info-bg: #F0F4F4;
   --info-text: #537374;
   
-  --bg-color: #F5F7F6; /* Sanftes Grau-Grün als App-Hintergrund */
+  --bg-color: #F5F7F6;
   --surface: #FFFFFF;
-  --surface-alt: #EFF2F0; /* Weiche Abhebung für Kacheln */
+  --surface-alt: #EFF2F0;
   
-  --text-main: #3E4B45; /* Dunkles Schiefergrau statt hartem Schwarz */
+  --text-main: #3E4B45;
   --text-muted: #7A8B83;
   --border: #DCE3DF;
   
@@ -28,7 +28,6 @@
   --radius-md: 12px;
   --radius-sm: 8px;
   
-  /* Sehr weiche, ausgedehnte Schatten für einen "schwebenden" Effekt */
   --shadow-sm: 0 2px 4px 0 rgba(62, 75, 69, 0.03);
   --shadow-md: 0 8px 16px -4px rgba(62, 75, 69, 0.06), 0 4px 8px -4px rgba(62, 75, 69, 0.04);
   --shadow-lg: 0 16px 32px -4px rgba(62, 75, 69, 0.08);
@@ -173,7 +172,7 @@ button {
 
 .icon-button:hover {
   background: var(--surface-alt);
-  color: var(--danger); /* Hover bei Icons oft sanftes rot (zB für löschen) */
+  color: var(--danger);
 }
 
 /* --- Hero Section & Alerts --- */
@@ -223,12 +222,14 @@ button {
 
 .alert-icon {
   font-size: 1.25rem;
+  flex-shrink: 0;
 }
 
 /* --- Generators Grid --- */
 .generators-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  /* Minmax etwas reduziert, damit es besser auf Handys bricht */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
   margin-bottom: 4rem;
 }
@@ -252,11 +253,15 @@ button {
 
 .tile-header {
   position: relative;
-  background: var(--surface-alt); /* Weicher Hintergrund statt hartem Schwarz */
+  background: var(--surface-alt);
   padding: 1.5rem 1rem 1rem 1rem;
   display: flex;
   justify-content: center;
   border-bottom: 1px solid var(--border);
+}
+
+.visualizer-wrapper {
+  width: 100%;
 }
 
 .visualizer-wrapper canvas {
@@ -519,6 +524,7 @@ button {
 .store-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
   background: var(--surface-alt);
@@ -588,10 +594,12 @@ button {
   display: flex;
   align-items: center;
   gap: 1.25rem;
+  word-break: break-word; /* Wichtig für lange Dateinamen auf Mobile */
 }
 
 .file-icon {
   font-size: 1.75rem;
+  flex-shrink: 0;
 }
 
 .file-name {
@@ -617,16 +625,105 @@ button {
   font-size: 0.95rem;
 }
 
-/* Responsive */
+
+/* ============================================================
+   RESPONSIVE DESIGN (Smartphone & Tablet Anpassungen)
+   ============================================================ */
+
 @media (max-width: 768px) {
-  .grid-2-col {
-    grid-template-columns: 1fr;
-  }
+  /* 1. Generelles Layout komprimieren */
   .app-layout {
-    padding: 1rem;
+    padding: 1rem 0.75rem; /* Drastisch weniger Rand am Displayrand */
   }
+
+  /* 2. Header stapeln */
   .app-header {
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* 3. Textgrößen anpassen */
+  .subtitle {
+    font-size: 1.5rem;
+  }
+  
+  .intro-text {
+    font-size: 1rem;
+  }
+
+  /* 4. Kacheln (Generatoren) mehr Platz geben */
+  .generators-grid {
+    grid-template-columns: 1fr; /* Zwingt die Kacheln untereinander */
+    gap: 1rem;
+  }
+
+  .tile-controls {
+    padding: 1.25rem 1rem; /* Weniger inneres Padding in der Kachel */
+    gap: 1.25rem;
+  }
+
+  .freq-input {
+    font-size: 2.25rem; /* Frequenz-Zahl etwas kleiner */
+    width: 140px; /* Nimmt weniger Breite ein */
+  }
+
+  /* 5. Grids und Spalten aufbrechen */
+  .grid-2-col {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .card-section {
+    padding: 1.5rem 1rem; /* Info-Karten bekommen dünnere Ränder */
+    border-radius: var(--radius-lg);
+  }
+
+  .params-row {
+    gap: 1rem; /* Regler für Volume und Pan enger zusammen */
+  }
+
+  /* 6. Buttons und Controls optimieren */
+  .timer-controls {
+    flex-wrap: wrap; /* Lässt den Timer auf 2 Zeilen umbrechen, wenn nötig */
+    justify-content: center;
+  }
+
+  .store-buttons {
+    flex-direction: column; /* App Stores untereinander */
+    gap: 0.75rem;
+  }
+  
+  .store-btn {
+    width: 100%; /* Volle Breite für Daumenbedienbarkeit */
+  }
+
+  .fine-tune-grid button {
+    padding: 0.5rem 0.2rem; /* +/- Buttons minimal schmaler */
+  }
+
+  .list-item {
+    flex-direction: column; /* Download-Liste untereinander auf kleinen Screens */
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .list-item .secondary-button {
+    width: 100%;
+  }
+}
+
+/* Anpassung für SEHR schmale Displays (z.B. iPhone SE) */
+@media (max-width: 380px) {
+  .header-actions {
+    flex-direction: column;
+  }
+  .signout-btn {
+    width: 100%;
   }
 }
