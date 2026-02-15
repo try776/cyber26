@@ -301,7 +301,7 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
 
         <div className="slider-group">
           <input
-            type="range" min="20" max="10000" step="1"
+            type="range" min="20" max="100000" step="1"
             value={frequency} onChange={(e) => setFrequency(Number(e.target.value))}
             className="modern-slider"
           />
