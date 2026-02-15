@@ -390,7 +390,7 @@ function App() {
           <header className="app-header">
             <div className="branding">
               <h1 className="logo">Radionik ES</h1>
-              <span className="version-tag">v2.4</span>
+              <span className="version-tag">v2.5</span>
             </div>
             <div className="header-actions">
               <div className="lang-switch">
