@@ -383,8 +383,31 @@ function App() {
     }
   };
 
+  // --- NEU: Custom Components für den Authenticator ---
+  const authComponents = {
+    Header() {
+      return (
+        <div style={{ textAlign: 'center', padding: '2rem 1rem 1rem 1rem' }}>
+          <h2 style={{ margin: '0 0 0.5rem 0', color: '#2c3e50', fontSize: '1.8rem', fontWeight: 'bold' }}>
+            {t.title}
+          </h2>
+          <p style={{ margin: 0, color: '#64748b', fontSize: '0.95rem' }}>
+            {t.subtitle}
+          </p>
+        </div>
+      );
+    },
+    Footer() {
+      return (
+        <div style={{ textAlign: 'center', padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>
+          &copy; {new Date().getFullYear()} {t.title}
+        </div>
+      );
+    }
+  };
+
   return (
-    <Authenticator hideSignUp={true}>
+    <Authenticator hideSignUp={true} components={authComponents}>
       {({ signOut }) => (
         <main className="app-layout">
           <header className="app-header">
