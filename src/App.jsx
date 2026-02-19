@@ -105,7 +105,7 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
   const [frequency, setFrequency] = useState(initialFreq);
   const [volume, setVolume] = useState(0.3);
   const [pan, setPan] = useState(0);
-  const [waveType, setWaveType] = useState('sine');
+  const [waveType, setWaveType] = useState('square');
 
   // Timer
   const [timerSeconds, setTimerSeconds] = useState(0);
@@ -301,7 +301,7 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
 
         <div className="slider-group">
           <input
-            type="range" min="20" max="100000" step="1"
+            type="range" min="20" max="500000" step="1"
             value={frequency} onChange={(e) => setFrequency(Number(e.target.value))}
             className="modern-slider"
           />
@@ -326,14 +326,14 @@ function ToneInstance({ id, onRemove, t, initialFreq }) {
         </div>
 
         <div className="waveform-group">
-          {['sine', 'square', 'sawtooth', 'triangle'].map(type => (
+          {[ 'square', 'sine', 'sawtooth', 'triangle'].map(type => (
             <button 
               key={type} 
               className={`waveform-btn ${waveType === type ? 'active' : ''}`} 
               onClick={() => setWaveType(type)}
               title={type}
             >
-              {type === 'sine' ? '∿' : type === 'square' ? '⎍' : type === 'sawtooth' ? '◿' : '△'}
+              {type === 'square' ? '⎍' : type === 'sine' ? '∿' :  type === 'sawtooth' ? '◿' : '△'}
             </button>
           ))}
         </div>
@@ -413,7 +413,7 @@ function App() {
           <header className="app-header">
             <div className="branding">
               <h1 className="logo">Radionik ES</h1>
-              <span className="version-tag">v2.6</span>
+              <span className="version-tag">v2.7</span>
             </div>
             <div className="header-actions">
               <div className="lang-switch">
